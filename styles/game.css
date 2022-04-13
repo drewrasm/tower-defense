@@ -9,8 +9,9 @@
 body
 {
     margin: 0;
-    color: var(--dark-grey);
-    font-family: Courier, monospace
+    color: var(--lt-grey);
+    font-family: Courier, monospace;
+    background-color: var(--dark-grey);
 }
 
 
@@ -30,7 +31,6 @@ body
     display: block;
     width: 900px;
     height: 600px;
-    background-color: white;
 }
 
 #router .screen {
@@ -121,3 +121,9 @@ button:hover {
 .score-show:hover {
     background-color: var(--teal);
 }   
+
+.screen-menu {
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}

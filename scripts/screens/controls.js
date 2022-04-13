@@ -5,28 +5,18 @@ MyGame.screens["controls"] = (function (router) {
   
     let keyListener = null;
 
-    // NOTE: These controls aren't necessarily the ones you'll always use... 
-  
     let controls = {
-      down: {
-        element: document.getElementById("control-down"),
-        value: "ArrowDown",
+      upgrade: {
+        element: document.getElementById("control-upgrade"),
+        value: "KeyU",
       },
-      up: {
-        element: document.getElementById("control-up"),
-        value: "ArrowUp",
+      sell: {
+        element: document.getElementById("control-sell"),
+        value: "KeyS",
       },
-      right: {
-        element: document.getElementById("control-right"),
-        value: "ArrowRight",
-      },
-      left: {
-        element: document.getElementById("control-left"),
-        value: "ArrowLeft",
-      },
-      fire: {
-        element: document.getElementById("control-fire"),
-        value: " ",
+      start: {
+        element: document.getElementById("control-start"),
+        value: "KeyG",
       },
     };
   
