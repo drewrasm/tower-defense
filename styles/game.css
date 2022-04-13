@@ -1,0 +1,123 @@
+:root {
+    --dark-grey: #424242;
+    --md-blue: #12b7b0;
+    --teal: #00ffd5;
+    --lt-grey : #cccccc;
+    --md-grey: #a8a8a8;
+}
+
+body
+{
+    margin: 0;
+    color: var(--dark-grey);
+    font-family: Courier, monospace
+}
+
+
+#id-canvas
+{
+    margin: auto;
+    display: block;
+}
+
+
+#id-canvas {
+    background-color: black;
+}
+
+#router {
+    margin: auto;
+    display: block;
+    width: 900px;
+    height: 600px;
+    background-color: white;
+}
+
+#router .screen {
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+#router .screen.active {
+    display: block;
+}
+
+#main-menu {
+}
+
+button {
+    background-color: var(--md-grey);
+    border: none;
+    border-radius: 20px;
+    padding: 5px;
+}
+
+button:hover {
+    background-color: var(--md-blue);
+}
+
+.page-content {
+    padding-top: 10px;
+    font-size: 15px;
+    margin: auto;
+}
+
+.page-title {
+    font-size: 25px;
+    text-align: center;
+    height: 50px;
+}
+.page-subtitle {
+    text-align: center;
+}
+
+.page-actions {
+    margin: auto;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-actions button {
+    margin: 10px 0px 10px 0px;
+}
+
+.selected {
+    background-color: var(--lt-grey);
+    border-radius: 10px;
+}
+
+.controls-config  {
+    text-align: center;
+    margin: 10px 0px 10px 0px;
+}
+
+.control {
+    border: 2px solid var(--teal);
+    width: 200px;
+    margin: auto;
+    border-radius: 10px;
+    margin: auto;
+    margin-top: 10px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.score-show {
+    border: 2px solid var(--teal);
+    width: 200px;
+    margin: auto;
+    border-radius: 10px;
+    margin: auto;
+    margin-top: 10px;
+    padding: 5px;
+}
+
+.control:hover {
+    background-color: var(--teal);
+}   
+
+.score-show:hover {
+    background-color: var(--teal);
+}   

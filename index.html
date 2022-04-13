@@ -1,0 +1,115 @@
+<!DOCTYPE HTML>
+<html lang = "en-US">
+<head>
+    <meta charset = "UTF-8">
+    <title>Andrew - Game Dev</title>
+    <link rel = "stylesheet" type = "text/css" href = "styles/game.css">
+</head>
+<body>
+    <div id='router'>
+        <div id="main-menu" class="screen">
+            <div class="page-content">
+                <div class="page-title">THE GAME</div>
+                <div class="page-actions">
+                    <button id='to-game'>Start Game</button>
+                    <button id='to-hs'>High Scores</button>
+                    <button id='to-about'>About</button>
+                    <button id='to-controls'>Controls</button>
+                </div>
+            </div>
+        </div>
+        <div id='gameplay' class='screen'>
+            <div>Game Play</div>
+            <div class="screen-menu">
+                <button id='game-to-main'>
+                    Main Menu
+                </button>
+            </div>
+            <canvas id = "id-canvas" width = "600" height = "600"></canvas>
+        </div>
+        <div id="high-scores" class="screen">
+            <div class="page-content">
+                <div class="page-title">HIGH SCORES</div>
+                <div class="page-actions">
+                    <button id='hs-to-main'>
+                        Main Menu
+                    </button>
+                </div>
+
+                <div class="scores">
+                    <div class="score-show">
+                        <div class="label">1</div>
+                        <div id='1-score'></div>
+                    </div>
+                    <div class="score-show">
+                        <div class="label">2</div>
+                        <div id='2-score'></div>
+                    </div>
+                    <div class="score-show">
+                        <div class="label">3</div>
+                        <div id='3-score'></div>
+                    </div>
+                    <div class="score-show">
+                        <div class="label">4</div>
+                        <div id='4-score'></div>
+                    </div>
+                    <div class="score-show">
+                        <div class="label">5</div>
+                        <div id='5-score'></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="about" class="screen">
+            <div class="page-content">
+                <div class="page-title">
+                    My Game
+                </div>
+                <div class="page-subtitle">Developed by Andrew Rasmussen</div>
+                <div class="page-actions">
+                    <button id='about-to-main'>
+                        Main Menu
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="controls" class="screen">
+            <div class="page-content">
+                <div class="page-title">
+                    CONTROLS
+                </div>
+                <div class="page-actions">
+                    <button id='controls-to-main'>
+                        Main Menu
+                    </button>
+                </div>
+
+                <div class="controls-config">
+                    <div class="control">
+                        <div class="label">UP</div>
+                        <div id='control-up'></div>
+                    </div>
+                    <div class="control">
+                        <div class="label">DOWN</div>
+                        <div id='control-down'></div>
+                    </div>
+                    <div class="control">
+                        <div class="label">LEFT</div>
+                        <div id='control-left'></div>
+                    </div>
+                    <div class="control">
+                        <div class="label">RIGHT</div>
+                        <div id='control-right'></div>
+                    </div>
+                    <div class="control">
+                        <div class="label">FIRE</div>
+                        <div id='control-fire'></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script data-main = "scripts/loader" src = "scripts/require.js"></script>
+</body>
+</html>
