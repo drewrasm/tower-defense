@@ -1,8 +1,20 @@
 MyGame.graphics = (function() {
-    'use strict';
+    "use strict";
 
-    let canvas = document.getElementById('id-canvas');
-    let context = canvas.getContext('2d');
+    let canvas = document.getElementById("id-canvas");
+    let context = canvas.getContext("2d");
+
+    let gameGrid = {
+        // this is the top left of the rect
+        location: { x: 50, y: 50 },
+        center: { x: 50 + (540 / 2), y: 50 + (540 / 2) },
+        size: {
+            x: 540,
+            y: 540,
+        },
+        cellWidth: 540 / 12,
+        fillStyle: "#FF0000"
+    };
 
     //------------------------------------------------------------------
     //
@@ -32,7 +44,9 @@ MyGame.graphics = (function() {
             image,
             center.x - size.x / 2,
             center.y - size.y / 2,
-            size.x, size.y);
+            size.x,
+            size.y
+        );
 
         context.restore();
     }
@@ -47,24 +61,92 @@ MyGame.graphics = (function() {
     // --------------------------------------------------------------
     function drawRectangle(rect, fillStyle, strokeStyle) {
         context.save();
-        context.translate(rect.center.x, rect.center.y );
+        context.translate(rect.center.x, rect.center.y);
         context.rotate(rect.rotation);
         context.translate(-rect.center.x, -rect.center.y);
-        
+
         context.fillStyle = fillStyle;
-        context.fillRect(rect.center.x - rect.size.x / 2, rect.center.y - rect.size.y / 2, rect.size.x, rect.size.y);
-        
+        context.fillRect(
+            rect.center.x - rect.size.x / 2,
+            rect.center.y - rect.size.y / 2,
+            rect.size.x,
+            rect.size.y
+        );
+
         context.strokeStyle = strokeStyle;
-        context.strokeRect(rect.center.x - rect.size.x / 2, rect.center.y - rect.size.y / 2, rect.size.x, rect.size.y);
+        context.strokeRect(
+            rect.center.x - rect.size.x / 2,
+            rect.center.y - rect.size.y / 2,
+            rect.size.x,
+            rect.size.y
+        );
 
         context.restore();
+    }
+
+    const drawGrid = () => {
+        context.beginPath();
+        for (var x = gameGrid.location.x; x < gameGrid.size.x + gameGrid.cellWidth * 2; x += gameGrid.cellWidth) {
+            context.moveTo(0.5 + x, gameGrid.location.y);
+            context.lineTo(0.5 + x, gameGrid.location.y + gameGrid.size.y)
+        }
+        for (var y = gameGrid.location.y; y < gameGrid.size.y + gameGrid.cellWidth * 2; y += gameGrid.cellWidth) {
+            context.moveTo(gameGrid.location.x, 0.5 + y);
+            context.lineTo(gameGrid.location.x + gameGrid.size.x, 0.5 + y)
+        }
+        context.closePath();
+        context.lineWidth = 1;
+        context.strokeStyle = "white";
+        context.stroke();
+    };
+
+    const drawBorder = () => {
+        context.beginPath();
+
+        // left side
+        context.moveTo(0.5 + gameGrid.location.x, gameGrid.location.y);
+        context.lineTo(0.5 + gameGrid.location.x, gameGrid.location.y + (gameGrid.cellWidth * 4));
+
+        context.moveTo(0.5 + gameGrid.location.x, gameGrid.location.y + (gameGrid.cellWidth * 8));
+        context.lineTo(0.5 + gameGrid.location.x, gameGrid.location.y + (gameGrid.cellWidth * 12));
+
+        // right side
+        context.moveTo(0.5 + gameGrid.location.x + gameGrid.size.x, gameGrid.location.y);
+        context.lineTo(0.5 + gameGrid.location.x + gameGrid.size.x, gameGrid.location.y + (gameGrid.cellWidth * 4));
+
+        context.moveTo(0.5 + gameGrid.location.x + gameGrid.size.x, gameGrid.location.y + (gameGrid.cellWidth * 8));
+        context.lineTo(0.5 + gameGrid.location.x + gameGrid.size.x, gameGrid.location.y + (gameGrid.cellWidth * 12));
+
+        // top
+        context.moveTo(0.5 + gameGrid.location.x, gameGrid.location.y);
+        context.lineTo(0.5 + gameGrid.location.x + (gameGrid.cellWidth * 4), gameGrid.location.y);
+
+        context.moveTo(0.5 + gameGrid.location.x + (gameGrid.cellWidth * 8), gameGrid.location.y);
+        context.lineTo(0.5 + gameGrid.location.x + (gameGrid.cellWidth * 12), gameGrid.location.y);
+
+        // bottom
+        context.moveTo(0.5 + gameGrid.location.x, gameGrid.location.y + gameGrid.size.y);
+        context.lineTo(0.5 + gameGrid.location.x + (gameGrid.cellWidth * 4), gameGrid.location.y + gameGrid.size.y);
+
+        context.moveTo(0.5 + gameGrid.location.x + (gameGrid.cellWidth * 8), gameGrid.location.y + gameGrid.size.y);
+        context.lineTo(0.5 + gameGrid.location.x + (gameGrid.cellWidth * 12), gameGrid.location.y + gameGrid.size.y);
+
+        context.closePath();
+        context.lineWidth = 4;
+        context.strokeStyle = "blue";
+        context.stroke();
     }
 
     let api = {
         clear: clear,
         drawTexture: drawTexture,
-        drawRectangle: drawRectangle
+        drawRectangle: drawRectangle,
+        drawGrid: drawGrid,
+        drawBorder: drawBorder,
+        canvas,
+        context,
+        gameGrid
     };
 
     return api;
-}());
+})();
