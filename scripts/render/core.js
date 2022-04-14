@@ -84,6 +84,37 @@ MyGame.graphics = (function() {
         context.restore();
     }
 
+    function drawSubTexture(
+        image,
+        index,
+        subTextureWidth,
+        center,
+        rotation,
+        size
+    ) {
+        context.save();
+
+        context.translate(center.x, center.y);
+        context.rotate(rotation);
+        context.translate(-center.x, -center.y);
+
+        //
+        // Pick the selected sprite from the sprite sheet to render
+        context.drawImage(
+            image,
+            subTextureWidth * index,
+            0, // Which sub-texture to pick out
+            subTextureWidth,
+            image.height, // The size of the sub-texture
+            center.x - size.x / 2, // Where to draw the sub-texture
+            center.y - size.y / 2,
+            size.x,
+            size.y
+        );
+
+        context.restore();
+    }
+
     const drawGrid = () => {
         context.beginPath();
         for (var x = gameGrid.location.x; x < gameGrid.size.x + gameGrid.cellWidth * 2; x += gameGrid.cellWidth) {
@@ -143,6 +174,7 @@ MyGame.graphics = (function() {
         drawRectangle: drawRectangle,
         drawGrid: drawGrid,
         drawBorder: drawBorder,
+        drawSubTexture: drawSubTexture,
         canvas,
         context,
         gameGrid

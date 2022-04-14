@@ -15,9 +15,72 @@ MyGame.screens["gameplay"] = (function(
     let lastTimeStamp = performance.now();
     let cancelNextRequest = true;
 
+    let birdRender = renderer.AnimatedModel({
+            spriteSheet: "assets/bird-west.png",
+            spriteCount: 3,
+            spriteTime: [100, 100, 100],
+        },
+        graphics
+    )
+
+    let bird = {
+        center: {
+            x: 40,
+            y: 40,
+        },
+        size: {
+            x: 50,
+            y: 50,
+        },
+        roation: 0
+    }
+
+    let turtleRender = renderer.AnimatedModel({
+            spriteSheet: "assets/turtle-south.png",
+            spriteCount: 8,
+            spriteTime: [100, 100, 100, 100, 100, 100, 100, 100],
+        },
+        graphics
+    )
+
+    let turtle = {
+        center: {
+            x: 140,
+            y: 140,
+        },
+        size: {
+            x: 50,
+            y: 50,
+        },
+        roation: 0
+    }
+
+    let knightRender = renderer.AnimatedModel({
+            spriteSheet: "assets/knight-west.png",
+            spriteCount: 8,
+            spriteTime: [100, 100, 100, 100, 100, 100, 100, 100],
+        },
+        graphics
+    )
+
+    let knight = {
+        center: {
+            x: 240,
+            y: 240,
+        },
+        size: {
+            x: 50,
+            y: 50,
+        },
+        roation: 0
+    }
+
 
     function update(elapsedTime) {
         // update
+        birdRender.update(elapsedTime);
+        turtleRender.update(elapsedTime);
+        knightRender.update(elapsedTime);
     }
 
     function render() {
@@ -25,6 +88,10 @@ MyGame.screens["gameplay"] = (function(
         // graphics.drawRectangle(graphics.gameGrid, "#FF0000", "#FF0000");
         graphics.drawGrid();
         graphics.drawBorder();
+
+        birdRender.render(bird);
+        turtleRender.render(turtle);
+        knightRender.render(knight);
     }
 
     function gameLoop(time) {
