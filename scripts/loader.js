@@ -3,6 +3,8 @@ MyGame = {
     render: {},
     assets: {},
     screens: {},
+    pieces: {},
+    input: {},
 };
 
 //------------------------------------------------------------------
@@ -41,8 +43,43 @@ MyGame.loader = (function() {
             onComplete: null,
         },
         {
+            scripts: ["Render/static-model"],
+            message: "static model renderer loaded",
+            onComplete: null,
+        },
+        {
+            scripts: ["Render/text"],
+            message: "text model renderer loaded",
+            onComplete: null,
+        },
+        {
+            scripts: ["input/input-keyboard"],
+            message: "keyboard input loaded",
+            onComplete: null,
+        },
+        {
+            scripts: ["input/input-mouse"],
+            message: "mouse input loaded",
+            onComplete: null,
+        },
+        {
             scripts: ["router"],
             message: "router loaded",
+            onComplete: null,
+        },
+        {
+            scripts: ["pieces/turret"],
+            message: "turret piece loaded",
+            onComplete: null,
+        },
+        {
+            scripts: ["pieces/bomb"],
+            message: "bomb piece loaded",
+            onComplete: null,
+        },
+        {
+            scripts: ["pieces/text"],
+            message: "text piece loaded",
             onComplete: null,
         },
         {

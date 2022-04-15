@@ -8,95 +8,197 @@ MyGame.screens["gameplay"] = (function(
     renderer,
     assets,
     graphics,
-    router
+    router,
+    pieces,
+    input
 ) {
     "use strict";
+
+    // STATE VARIABLES 
+
+    let keyboard = input.Keyboard();
+    let mouse = input.Mouse();
 
     let lastTimeStamp = performance.now();
     let cancelNextRequest = true;
 
-    let birdRender = renderer.AnimatedModel({
-            spriteSheet: "assets/creeps/bird-west.png",
-            spriteCount: 3,
-            spriteTime: [100, 100, 100],
-        },
-        graphics
-    )
+    let showGrid = true;
 
-    let bird = {
+    let level = 1;
+    let lives = 3;
+    let gold = 100;
+
+
+
+    let time = 0;
+    let timeText = pieces.text({
+        text: `Time ${time}`,
+        font: `${20}px Arial`,
+        fillStyle: " #cccccc",
+        strokeStyle: " #cccccc",
+        position: { x: 25, y: 2 },
+    });
+    let levelText = pieces.text({
+        text: `Level ${level}`,
+        font: `${20}px Courier, monospace`,
+        fillStyle: " #cccccc",
+        strokeStyle: " #cccccc",
+        position: { x: 175, y: 2 },
+    });
+    let livesText = pieces.text({
+        text: `Lives ${lives}`,
+        font: `${20}px Courier, monospace`,
+        fillStyle: " #cccccc",
+        strokeStyle: " #cccccc",
+        position: { x: 375, y: 2 },
+    });
+    let goldText = pieces.text({
+        text: `Gold ${gold}`,
+        font: `${20}px Courier, monospace`,
+        fillStyle: " #cccccc",
+        strokeStyle: " #cccccc",
+        position: { x: 575, y: 2 },
+    });
+
+    let startButton = pieces.text({
+        text: 'Start',
+        font: `${20}px Courier, monospace`,
+        fillStyle: " #cccccc",
+        strokeStyle: " #cccccc",
+        position: { x: 625, y: 100 },
+    })
+
+    let resetButton = pieces.text({
+        text: 'Reset',
+        font: `${20}px Courier, monospace`,
+        fillStyle: " #cccccc",
+        strokeStyle: " #cccccc",
+        position: { x: 700, y: 100 },
+    })
+
+    let groundTurretIcon = pieces.turret({
         center: {
-            x: 40,
-            y: 40,
+            x: 640,
+            y: 170,
         },
         size: {
-            x: 50,
-            y: 50,
+            x: graphics.gameGrid.cellWidth,
+            y: graphics.gameGrid.cellWidth,
         },
-        roation: 0
-    }
-
-    let turtleRender = renderer.AnimatedModel({
-            spriteSheet: "assets/creeps/turtle-south.png",
-            spriteCount: 8,
-            spriteTime: [100, 100, 100, 100, 100, 100, 100, 100],
-        },
-        graphics
-    )
-
-    let turtle = {
+        roation: 0,
+        imageSrc: "assets/guns/ground-turret-1.png",
+    })
+    let airTurretIcon = pieces.turret({
         center: {
-            x: 140,
-            y: 140,
+            x: 650 + graphics.gameGrid.cellWidth,
+            y: 170,
         },
         size: {
-            x: 50,
-            y: 50,
+            x: graphics.gameGrid.cellWidth,
+            y: graphics.gameGrid.cellWidth,
         },
-        roation: 0
-    }
-
-    let knightRender = renderer.AnimatedModel({
-            spriteSheet: "assets/creeps/knight-west.png",
-            spriteCount: 8,
-            spriteTime: [100, 100, 100, 100, 100, 100, 100, 100],
-        },
-        graphics
-    )
-
-    let knight = {
+        roation: 0,
+        imageSrc: "assets/guns/air-turret-1.png",
+    })
+    let bombIcon = pieces.turret({
         center: {
-            x: 240,
-            y: 240,
+            x: 660 + (graphics.gameGrid.cellWidth * 2),
+            y: 170,
         },
         size: {
-            x: 50,
-            y: 50,
+            x: graphics.gameGrid.cellWidth,
+            y: graphics.gameGrid.cellWidth,
         },
-        roation: 0
-    }
+        roation: 0,
+        imageSrc: "assets/guns/bomb-1.png",
+    })
+    let upgradeButton = pieces.text({
+        text: 'Upgrade',
+        font: `${20}px Courier, monospace`,
+        fillStyle: " #cccccc",
+        strokeStyle: " #cccccc",
+        position: { x: 650, y: 400 },
+    })
+    let showGridButton = pieces.text({
+        text: 'Show Grid',
+        font: `${20}px Courier, monospace`,
+        fillStyle: " #cccccc",
+        strokeStyle: " #cccccc",
+        position: { x: 650, y: 425 },
+    })
 
+    // let birdRender = renderer.AnimatedModel({
+    //         spriteSheet: "assets/creeps/bird-west.png",
+    //         spriteCount: 3,
+    //         spriteTime: [100, 100, 100],
+    //     },
+    //     graphics
+    // )
+
+    // let bird = {
+    //     center: {
+    //         x: 40,
+    //         y: 40,
+    //     },
+    //     size: {
+    //         x: 50,
+    //         y: 50,
+    //     },
+    //     roation: 0
+    // }
+
+    // END OF STATE VARIABLES 
+
+    const handleMouse = (e) => {
+        console.log(e)
+        console.log('click!')
+    };
+
+    mouse.register('mousedown', handleMouse);
+
+    function processInput(elapsedTime) {
+        keyboard.update(elapsedTime);
+        mouse.update(elapsedTime)
+    }
 
     function update(elapsedTime) {
         // update
-        birdRender.update(elapsedTime);
-        turtleRender.update(elapsedTime);
-        knightRender.update(elapsedTime);
+        // birdRender.update(elapsedTime);
+        // turtleRender.update(elapsedTime);
+        // knightRender.update(elapsedTime);
     }
 
     function render() {
         graphics.clear();
         // graphics.drawRectangle(graphics.gameGrid, "#FF0000", "#FF0000");
-        graphics.drawGrid();
+        if (showGrid) {
+            graphics.drawGrid();
+        }
         graphics.drawBorder();
 
-        birdRender.render(bird);
-        turtleRender.render(turtle);
-        knightRender.render(knight);
+        // birdRender.render(bird);
+        // turtleRender.render(turtle);
+        // knightRender.render(knight);
+        // renderer.Model.render(turret);
+        // renderer.Model.render(bomb);
+        renderer.Model.render(groundTurretIcon);
+        renderer.Model.render(airTurretIcon);
+        renderer.Model.render(bombIcon);
+
+        renderer.Text.render(timeText)
+        renderer.Text.render(levelText)
+        renderer.Text.render(goldText)
+        renderer.Text.render(livesText)
+        renderer.Text.render(startButton)
+        renderer.Text.render(resetButton)
+        renderer.Text.render(upgradeButton)
+        renderer.Text.render(showGridButton)
     }
 
     function gameLoop(time) {
         let elapsedTime = time - lastTimeStamp;
 
+        processInput(elapsedTime);
         update(elapsedTime);
         lastTimeStamp = time;
 
@@ -136,5 +238,7 @@ MyGame.screens["gameplay"] = (function(
     MyGame.render,
     MyGame.assets,
     MyGame.graphics,
-    MyGame.router
+    MyGame.router,
+    MyGame.pieces,
+    MyGame.input
 );

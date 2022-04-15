@@ -84,6 +84,26 @@ MyGame.graphics = (function() {
         context.restore();
     }
 
+    function drawText(spec) {
+        context.save();
+
+        context.lineWidth = 1;
+
+        context.font = spec.font;
+        context.fillStyle = spec.fillStyle;
+        context.strokeStyle = spec.strokeStyle;
+        context.textBaseline = "top";
+
+        context.translate(spec.position.x, spec.position.y);
+        context.rotate(spec.rotation);
+        context.translate(-spec.position.x, -spec.position.y);
+
+        context.fillText(spec.text, spec.position.x, spec.position.y);
+        context.strokeText(spec.text, spec.position.x, spec.position.y);
+
+        context.restore();
+    }
+
     function drawSubTexture(
         image,
         index,
@@ -172,6 +192,7 @@ MyGame.graphics = (function() {
         clear: clear,
         drawTexture: drawTexture,
         drawRectangle: drawRectangle,
+        drawText: drawText,
         drawGrid: drawGrid,
         drawBorder: drawBorder,
         drawSubTexture: drawSubTexture,

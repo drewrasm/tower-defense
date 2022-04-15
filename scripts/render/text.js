@@ -1,4 +1,4 @@
-MyGame.renderer.Text = (function(graphics) {
+MyGame.render.Text = (function(graphics) {
     "use strict";
 
     function render(spec) {

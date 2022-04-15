@@ -1,4 +1,4 @@
-MyGame.renderer.Model = (function(graphics) {
+MyGame.render.Model = (function(graphics) {
     "use strict";
 
     function render(spec) {
