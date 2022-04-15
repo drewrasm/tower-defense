@@ -9,6 +9,10 @@ MyGame.pieces.turret = function(spec) {
     };
     image.src = spec.imageSrc;
 
+    const setCenter = (loc) => {
+        spec.center = loc;
+    }
+
     return {
         get x() {
             return spec.center.x;
@@ -34,5 +38,6 @@ MyGame.pieces.turret = function(spec) {
         get imageReady() {
             return imageReady;
         },
+        setCenter
     };
 };

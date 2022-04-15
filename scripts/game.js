@@ -25,10 +25,12 @@ MyGame.screens["gameplay"] = (function (
   let showGrid;
   let showDescription;
   let time = 0;
-  
+
   let level = 1;
   let lives = 3;
   let gold = 100;
+
+  let selectedNewPiece;
 
   const initVars = () => {
     lastTimeStamp = performance.now();
@@ -36,10 +38,9 @@ MyGame.screens["gameplay"] = (function (
     showGrid = true;
     showDescription = false;
     time = 0;
+    selectedNewPiece = null;
+  };
 
-  }
-  
-  
   let timeText = pieces.text({
     text: `Time ${time}`,
     font: `${20}px Arial`,
@@ -71,28 +72,28 @@ MyGame.screens["gameplay"] = (function (
 
   let startButton = pieces.button({
     center: {
-        x: 650,
-        y: 100,
-      },
-      size: {
-        x: 90,
-        y: 40,
-      },
-      roation: 0,
-      imageSrc: "assets/buttons/start-button.png",
+      x: 650,
+      y: 100,
+    },
+    size: {
+      x: 90,
+      y: 40,
+    },
+    roation: 0,
+    imageSrc: "assets/buttons/start-button.png",
   });
 
   let resetButton = pieces.button({
     center: {
-        x: 750,
-        y: 100,
-      },
-      size: {
-        x: 90,
-        y: 40,
-      },
-      roation: 0,
-      imageSrc: "assets/buttons/reset-button.png",
+      x: 750,
+      y: 100,
+    },
+    size: {
+      x: 90,
+      y: 40,
+    },
+    roation: 0,
+    imageSrc: "assets/buttons/reset-button.png",
   });
 
   let groundTurretIcon = pieces.turret({
@@ -135,106 +136,115 @@ MyGame.screens["gameplay"] = (function (
   let description = pieces.button({
     center: { x: 700, y: 285 },
     size: {
-        x: 110,
-        y: 175,
-      },
+      x: 110,
+      y: 175,
+    },
     roation: 0,
     imageSrc: "assets/descriptions/ground-turret-1-description.png",
-  })
+  });
 
   let upgradeButton = pieces.button({
     center: { x: 650, y: 400 },
     size: {
-        x: 90,
-        y: 40,
-      },
-      roation: 0,
-      imageSrc: "assets/buttons/upgrade-button.png",
-
+      x: 90,
+      y: 40,
+    },
+    roation: 0,
+    imageSrc: "assets/buttons/upgrade-button.png",
   });
   let showGridButton = pieces.button({
     center: { x: 750, y: 400 },
     size: {
-        x: 90,
-        y: 40,
-      },
-      roation: 0,
-      imageSrc: "assets/buttons/show-grid.png",
-
+      x: 90,
+      y: 40,
+    },
+    roation: 0,
+    imageSrc: "assets/buttons/show-grid.png",
   });
 
-//   let birdRender = renderer.AnimatedModel({
-//           spriteSheet: "assets/creeps/bird-west.png",
-//           spriteCount: 3,
-//           spriteTime: [100, 100, 100],
-//       },
-//       graphics
-//   )
+  //   let birdRender = renderer.AnimatedModel({
+  //           spriteSheet: "assets/creeps/bird-west.png",
+  //           spriteCount: 3,
+  //           spriteTime: [100, 100, 100],
+  //       },
+  //       graphics
+  //   )
 
-//   let bird = {
-//       center: {
-//           x: 40,
-//           y: 40,
-//       },
-//       size: {
-//           x: 50,
-//           y: 50,
-//       },
-//       roation: 0
-//   }
+  //   let bird = {
+  //       center: {
+  //           x: 40,
+  //           y: 40,
+  //       },
+  //       size: {
+  //           x: 50,
+  //           y: 50,
+  //       },
+  //       roation: 0
+  //   }
 
   // END OF STATE VARIABLES
 
   const handleMouse = (e) => {
     let loc = { x: e.offsetX, y: e.offsetY };
-    if (utils.isInside(loc, startButton)) {
-      console.log("start");
-    }
-    if (utils.isInside(loc, resetButton)) {
-      console.log("reset");
-    }
-    if (utils.isInside(loc, showGridButton)) {
-      showGrid = !showGrid
-    }
-    if (utils.isInside(loc, upgradeButton)) {
-      console.log("upgrade");
+    if (!selectedNewPiece) {
+      if (utils.isInside(loc, startButton)) {
+        console.log("start");
+      }
+      if (utils.isInside(loc, resetButton)) {
+        console.log("reset");
+      }
+      if (utils.isInside(loc, showGridButton)) {
+        showGrid = !showGrid;
+      }
+      if (utils.isInside(loc, upgradeButton)) {
+        console.log("upgrade");
+      }
+      if (utils.isInside(loc, airTurretIcon)) {
+        selectedNewPiece = { ...airTurretIcon };
+      } else if (utils.isInside(loc, groundTurretIcon)) {
+        selectedNewPiece = {...groundTurretIcon};
+      } else if (utils.isInside(loc, bombIcon)) {
+        selectedNewPiece = { ...bombIcon };
+      } 
     }
   };
 
   const handleMouseMove = (e) => {
-      let loc = {x: e.offsetX, y: e.offsetY}
+    let loc = { x: e.offsetX, y: e.offsetY };
 
-      
-      // TODO: make the menu portion change based off of upgrades
-      if(utils.isInside(loc, bombIcon)) {
-          showDescription = true;
-          let newSrc = `assets/descriptions/bomb-${1}-description.png`;
-          if(newSrc !== description.imageSrc) {
-            description.changeImage(newSrc);
-          }
-      }
-      else if(utils.isInside(loc, airTurretIcon)) {
+    if (selectedNewPiece) {
+      selectedNewPiece.setCenter({ ...loc });
+    }
+
+    // TODO: make the menu portion change based off of upgrades
+    if(!selectedNewPiece) {
+      if (utils.isInside(loc, bombIcon)) {
         showDescription = true;
-        let newSrc = `assets/descriptions/air-turret-${1}-description.png`
-        if(newSrc !== description.imageSrc) {
-            description.changeImage(newSrc);
+        let newSrc = `assets/descriptions/bomb-${1}-description.png`;
+        if (newSrc !== description.imageSrc) {
+          description.changeImage(newSrc);
         }
-      }
-      else if(utils.isInside(loc, groundTurretIcon)) {
+      } else if (utils.isInside(loc, airTurretIcon)) {
+        showDescription = true;
+        let newSrc = `assets/descriptions/air-turret-${1}-description.png`;
+        if (newSrc !== description.imageSrc) {
+          description.changeImage(newSrc);
+        }
+      } else if (utils.isInside(loc, groundTurretIcon)) {
         showDescription = true;
         let newSrc = `assets/descriptions/ground-turret-${1}-description.png`;
-        if(newSrc !== description.imageSrc) {
-            description.changeImage(newSrc);
+        if (newSrc !== description.imageSrc) {
+          description.changeImage(newSrc);
         }
-      }
-      else if(showDescription) {
+      } else if (showDescription) {
         showDescription = false;
       }
-  }
+    }
+  };
 
   mouse.register("mousedown", handleMouse);
 
-  mouse.register("mousemove", handleMouseMove)
+  mouse.register("mousemove", handleMouseMove);
 
   function processInput(elapsedTime) {
     keyboard.update(elapsedTime);
@@ -259,8 +269,8 @@ MyGame.screens["gameplay"] = (function (
     renderer.Model.render(groundTurretIcon);
     renderer.Model.render(airTurretIcon);
     renderer.Model.render(bombIcon);
-    if(showDescription) {
-        renderer.Model.render(description);
+    if (showDescription) {
+      renderer.Model.render(description);
     }
 
     renderer.Text.render(timeText);
@@ -272,6 +282,10 @@ MyGame.screens["gameplay"] = (function (
     renderer.Model.render(resetButton);
     renderer.Model.render(upgradeButton);
     renderer.Model.render(showGridButton);
+
+    if (selectedNewPiece) {
+      renderer.Model.render(selectedNewPiece);
+    }
   }
 
   function gameLoop(time) {
