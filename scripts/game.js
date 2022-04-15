@@ -16,7 +16,7 @@ MyGame.screens["gameplay"] = (function(
     let cancelNextRequest = true;
 
     let birdRender = renderer.AnimatedModel({
-            spriteSheet: "assets/bird-west.png",
+            spriteSheet: "assets/creeps/bird-west.png",
             spriteCount: 3,
             spriteTime: [100, 100, 100],
         },
@@ -36,7 +36,7 @@ MyGame.screens["gameplay"] = (function(
     }
 
     let turtleRender = renderer.AnimatedModel({
-            spriteSheet: "assets/turtle-south.png",
+            spriteSheet: "assets/creeps/turtle-south.png",
             spriteCount: 8,
             spriteTime: [100, 100, 100, 100, 100, 100, 100, 100],
         },
@@ -56,7 +56,7 @@ MyGame.screens["gameplay"] = (function(
     }
 
     let knightRender = renderer.AnimatedModel({
-            spriteSheet: "assets/knight-west.png",
+            spriteSheet: "assets/creeps/knight-west.png",
             spriteCount: 8,
             spriteTime: [100, 100, 100, 100, 100, 100, 100, 100],
         },
