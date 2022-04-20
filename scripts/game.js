@@ -30,6 +30,8 @@ MyGame.screens["gameplay"] = (function (
   let lives = 3;
   let gold = 100;
 
+  let turrets = [];
+
   let selectedNewPiece;
 
   const initVars = () => {
@@ -185,7 +187,9 @@ MyGame.screens["gameplay"] = (function (
   // END OF STATE VARIABLES
 
   const handleMouse = (e) => {
+
     let loc = { x: e.offsetX, y: e.offsetY };
+
     if (!selectedNewPiece) {
       if (utils.isInside(loc, startButton)) {
         console.log("start");
@@ -200,12 +204,17 @@ MyGame.screens["gameplay"] = (function (
         console.log("upgrade");
       }
       if (utils.isInside(loc, airTurretIcon)) {
-        selectedNewPiece = { ...airTurretIcon };
+        selectedNewPiece =  pieces.turret(utils.copyTurret(airTurretIcon));
       } else if (utils.isInside(loc, groundTurretIcon)) {
-        selectedNewPiece = {...groundTurretIcon};
+        selectedNewPiece = pieces.turret(utils.copyTurret(groundTurretIcon));
       } else if (utils.isInside(loc, bombIcon)) {
-        selectedNewPiece = { ...bombIcon };
+        selectedNewPiece = pieces.turret(utils.copyTurret(bombIcon));
       } 
+    } else {
+      // NOT QUITE WORKIN
+      turrets.push({...selectedNewPiece});
+      console.log(turrets)
+      selectedNewPiece = null;
     }
   };
 
@@ -285,6 +294,10 @@ MyGame.screens["gameplay"] = (function (
 
     if (selectedNewPiece) {
       renderer.Model.render(selectedNewPiece);
+    }
+
+    for(let turret of turrets) {
+      renderer.Model.render(turret);
     }
   }
 

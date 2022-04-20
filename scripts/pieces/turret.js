@@ -35,6 +35,9 @@ MyGame.pieces.turret = function(spec) {
         get image() {
             return image;
         },
+        get imageSrc() {
+            return spec.imageSrc;
+        },
         get imageReady() {
             return imageReady;
         },

@@ -24,10 +24,28 @@ MyGame.utils = (function () {
       loc.y <= obj.center.y + obj.size.y / 2
     );
   };
+
+  const copyTurret = (turret) => {
+    return {
+      center: {
+        x: turret.center.x,
+        y: turret.center.y,
+      },
+      size: {
+        x: turret.size.x,
+        y: turret.size.y,
+      },
+      roation: turret.roation,
+      imageSrc: turret.imageSrc,
+    }
+  }
+
   let api = {
     isInside,
     isIntersecting,
+    copyTurret
   };
+
 
   return api;
 })();
