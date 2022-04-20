@@ -36,6 +36,7 @@ MyGame.screens["gameplay"] = (function (
 
   const initVars = () => {
     lastTimeStamp = performance.now();
+    graphics.generateCells();
     cancelNextRequest = true;
     showGrid = true;
     showDescription = false;
@@ -212,7 +213,10 @@ MyGame.screens["gameplay"] = (function (
       } 
     } else {
       // NOT QUITE WORKIN
-      turrets.push({...selectedNewPiece});
+      let closest = utils.findClosestCell(selectedNewPiece.center, graphics.cells)
+      let newPiece = {...selectedNewPiece, center: closest.center};
+      turrets.push(newPiece);
+      graphics.occupyCell(closest.loc.x, closest.loc.y, newPiece)
       console.log(turrets)
       selectedNewPiece = null;
     }

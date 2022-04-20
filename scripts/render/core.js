@@ -16,6 +16,29 @@ MyGame.graphics = (function () {
     fillStyle: "#FF0000",
   };
 
+  let cells = [];
+  
+  const generateCells = () => {
+    for(let x=0; x < 12; x++) {
+      let row = []
+      for(let y=0; y < 12; y++) {
+        row.push({
+          loc: {x, y},
+          center: {
+            x: (x * gameGrid.cellWidth) + gameGrid.location.x + (gameGrid.cellWidth / 2),
+            y: (y * gameGrid.cellWidth) + gameGrid.location.y + (gameGrid.cellWidth / 2)
+          },
+          piece: null
+        })
+      }
+      cells.push(row)
+    }
+  }
+
+  const occupyCell = (x, y, piece) => {
+    cells[x][y].piece = piece
+  }
+
   //------------------------------------------------------------------
   //
   // Public function that allows the client code to clear the canvas.
@@ -246,6 +269,11 @@ MyGame.graphics = (function () {
     drawGrid: drawGrid,
     drawBorder: drawBorder,
     drawSubTexture: drawSubTexture,
+    get cells() {
+      return cells;
+    },
+    occupyCell,
+    generateCells,
     canvas,
     context,
     gameGrid,

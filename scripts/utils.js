@@ -40,10 +40,26 @@ MyGame.utils = (function () {
     }
   }
 
+  const findClosestCell = (loc, cells) => {
+    let closest = cells[0][0];
+    for(let row of cells) {
+      for(let cell of row) {
+        let currentDiff = Math.abs(cell.center.x - loc.x) + Math.abs(cell.center.y - loc.y);
+        let closestDiff = Math.abs(closest.center.x - loc.x) + Math.abs(closest.center.y - loc.y);
+        if(currentDiff < closestDiff) {
+          closest = cell;
+        }
+      }
+    }
+    return closest
+
+  }
+
   let api = {
     isInside,
     isIntersecting,
-    copyTurret
+    copyTurret,
+    findClosestCell
   };
 
 
