@@ -64,6 +64,11 @@ MyGame.loader = (function () {
       onComplete: null,
     },
     {
+      scripts: ["pieces/creep"],
+      message: "creep loaded",
+      onComplete: null,
+    },
+    {
       scripts: ["input/input-keyboard"],
       message: "keyboard input loaded",
       onComplete: null,

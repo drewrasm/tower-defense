@@ -30,6 +30,10 @@ MyGame.screens["gameplay"] = (function (
   let lives = 3;
   let gold = 100;
 
+  let inPlay = false;
+
+  let bird
+
   let turrets = [];
 
   let selectedNewPiece;
@@ -37,11 +41,29 @@ MyGame.screens["gameplay"] = (function (
   const initVars = () => {
     lastTimeStamp = performance.now();
     graphics.generateCells();
+
+    // for example
+    bird = pieces.creep({
+      center: {
+          x: graphics.cells[0][0].center.x,
+          y: graphics.cells[0][0].center.y,
+      },
+      size: {
+          x: 50,
+          y: 50,
+      },
+      roation: 0,
+      type: 'bird'
+  })
+    bird.setCells(graphics.cells)
+    console.log(bird)
+    
     cancelNextRequest = true;
     showGrid = true;
     showDescription = false;
     time = 0;
     selectedNewPiece = null;
+    inPlay = false;
   };
 
   let timeText = pieces.text({
@@ -165,25 +187,14 @@ MyGame.screens["gameplay"] = (function (
     imageSrc: "assets/buttons/show-grid.png",
   });
 
-  //   let birdRender = renderer.AnimatedModel({
-  //           spriteSheet: "assets/creeps/bird-west.png",
-  //           spriteCount: 3,
-  //           spriteTime: [100, 100, 100],
-  //       },
-  //       graphics
-  //   )
 
-  //   let bird = {
-  //       center: {
-  //           x: 40,
-  //           y: 40,
-  //       },
-  //       size: {
-  //           x: 50,
-  //           y: 50,
-  //       },
-  //       roation: 0
-  //   }
+    let birdRender = renderer.AnimatedModel({
+            spriteSheet: "assets/creeps/bird-west.png",
+            spriteCount: 3,
+            spriteTime: [100, 100, 100],
+        },
+        graphics
+    )
 
   // END OF STATE VARIABLES
 
@@ -194,9 +205,12 @@ MyGame.screens["gameplay"] = (function (
     if (!selectedNewPiece) {
       if (utils.isInside(loc, startButton)) {
         console.log("start");
+        inPlay = true;
       }
       if (utils.isInside(loc, resetButton)) {
-        console.log("reset");
+        if(!inPlay) {
+          turrets = [];
+        }
       }
       if (utils.isInside(loc, showGridButton)) {
         showGrid = !showGrid;
@@ -266,7 +280,7 @@ MyGame.screens["gameplay"] = (function (
 
   function update(elapsedTime) {
     // update
-    // birdRender.update(elapsedTime);
+    birdRender.update(elapsedTime);
   }
 
   function render() {
@@ -277,7 +291,7 @@ MyGame.screens["gameplay"] = (function (
     }
     graphics.drawBorder();
 
-    // birdRender.render(bird);
+    birdRender.render(bird);
 
     renderer.Model.render(groundTurretIcon);
     renderer.Model.render(airTurretIcon);
