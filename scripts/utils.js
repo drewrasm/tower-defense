@@ -37,7 +37,12 @@ MyGame.utils = (function () {
       },
       roation: turret.roation,
       imageSrc: turret.imageSrc,
+      radius: turret.radius
     }
+  }
+  
+  const turretTypes = {
+    
   }
 
   const findClosestCell = (loc, cells) => {

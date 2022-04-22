@@ -37,6 +37,7 @@ MyGame.screens["gameplay"] = (function (
   let turrets = [];
 
   let selectedNewPiece;
+  let selectedGamePiece;
 
   const initVars = () => {
     lastTimeStamp = performance.now();
@@ -63,6 +64,7 @@ MyGame.screens["gameplay"] = (function (
     showDescription = false;
     time = 0;
     selectedNewPiece = null;
+    selectedGamePiece = null;
     inPlay = false;
   };
 
@@ -130,6 +132,7 @@ MyGame.screens["gameplay"] = (function (
       x: graphics.gameGrid.cellWidth,
       y: graphics.gameGrid.cellWidth,
     },
+    radius: 100,
     roation: 0,
     imageSrc: "assets/guns/ground-turret-1.png",
   });
@@ -142,6 +145,7 @@ MyGame.screens["gameplay"] = (function (
       x: graphics.gameGrid.cellWidth,
       y: graphics.gameGrid.cellWidth,
     },
+    radius: 100,
     roation: 0,
     imageSrc: "assets/guns/air-turret-1.png",
   });
@@ -155,6 +159,7 @@ MyGame.screens["gameplay"] = (function (
       y: graphics.gameGrid.cellWidth,
     },
     roation: 0,
+    radius: 100,
     imageSrc: "assets/guns/bomb-1.png",
   });
 
@@ -220,19 +225,34 @@ MyGame.screens["gameplay"] = (function (
       }
       if (utils.isInside(loc, airTurretIcon)) {
         selectedNewPiece =  pieces.turret(utils.copyTurret(airTurretIcon));
+        selectedGamePiece = null;
       } else if (utils.isInside(loc, groundTurretIcon)) {
         selectedNewPiece = pieces.turret(utils.copyTurret(groundTurretIcon));
+        selectedGamePiece = null;
       } else if (utils.isInside(loc, bombIcon)) {
         selectedNewPiece = pieces.turret(utils.copyTurret(bombIcon));
+        selectedGamePiece = null;
       } 
     } else {
-      // NOT QUITE WORKIN
-      let closest = utils.findClosestCell(selectedNewPiece.center, graphics.cells)
-      let newPiece = {...selectedNewPiece, center: closest.center};
-      turrets.push(newPiece);
-      graphics.occupyCell(closest.loc.x, closest.loc.y, newPiece)
-      console.log(turrets)
+      if(utils.isInside(selectedNewPiece, graphics.gameGrid)) {
+        let closest = utils.findClosestCell(selectedNewPiece.center, graphics.cells)
+        let newPiece = {...selectedNewPiece, center: closest.center};
+        turrets.push(newPiece);
+        graphics.occupyCell(closest.loc.x, closest.loc.y, newPiece)
+        console.log(turrets)
+      }
       selectedNewPiece = null;
+    }
+
+    if(!selectedGamePiece) {
+      for(let t of turrets) {
+        if(utils.isInside(loc, t)) {
+          selectedGamePiece = t;
+          break;
+        }
+      }
+    } else {
+      selectedGamePiece = null;
     }
   };
 
@@ -241,6 +261,18 @@ MyGame.screens["gameplay"] = (function (
 
     if (selectedNewPiece) {
       selectedNewPiece.setCenter({ ...loc });
+      if(utils.isInside(loc, graphics.gameGrid)) {
+        selectedNewPiece.setShowRadius(true);
+      } else {
+        selectedNewPiece.setShowRadius(false);
+      }
+    }
+    if(selectedGamePiece) {
+      if(utils.isInside(loc, graphics.gameGrid)) {
+        selectedGamePiece.setShowRadius(true);
+      } else {
+        selectedGamePiece.setShowRadius(false);
+      }
     }
 
     // TODO: make the menu portion change based off of upgrades
@@ -285,7 +317,14 @@ MyGame.screens["gameplay"] = (function (
 
   function render() {
     graphics.clear();
-    // graphics.drawRectangle(graphics.gameGrid, "#FF0000", "#FF0000");
+
+    if(selectedNewPiece?.showRadius) {
+      graphics.drawCircle(selectedNewPiece, '#6699CC');
+    }
+    if(selectedGamePiece?.showRadius) {
+      graphics.drawCircle(selectedGamePiece, '#6699CC');
+    }
+
     if (showGrid) {
       graphics.drawGrid();
     }

@@ -127,6 +127,19 @@ MyGame.graphics = (function () {
     context.restore();
   }
 
+  function drawCircle(circle, fillStyle) {
+    context.save();
+
+    context.arc(circle.center.x, circle.center.y, circle.radius, 0, 2 * Math.PI, false)
+
+    if (fillStyle) {
+      context.fillStyle = fillStyle
+      context.fill()
+    }
+
+    context.restore();
+  }
+
   function drawSubTexture(
     image,
     index,
@@ -265,6 +278,7 @@ MyGame.graphics = (function () {
     clear: clear,
     drawTexture: drawTexture,
     drawRectangle: drawRectangle,
+    drawCircle: drawCircle,
     drawText: drawText,
     drawGrid: drawGrid,
     drawBorder: drawBorder,

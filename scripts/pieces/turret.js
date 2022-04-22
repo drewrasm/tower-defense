@@ -4,6 +4,8 @@ MyGame.pieces.turret = function(spec) {
     let imageReady = false;
     let image = new Image();
 
+    let showRadius = false;
+
     image.onload = function() {
         imageReady = true;
     };
@@ -11,6 +13,10 @@ MyGame.pieces.turret = function(spec) {
 
     const setCenter = (loc) => {
         spec.center = loc;
+    }
+
+    const setShowRadius = (show) => {
+        showRadius = show;
     }
 
     return {
@@ -32,6 +38,9 @@ MyGame.pieces.turret = function(spec) {
         get height() {
             return spec.height;
         },
+        get radius() {
+            return spec.radius;
+        },
         get image() {
             return image;
         },
@@ -41,6 +50,10 @@ MyGame.pieces.turret = function(spec) {
         get imageReady() {
             return imageReady;
         },
-        setCenter
+        get showRadius() {
+            return showRadius;
+        },
+        setCenter,
+        setShowRadius
     };
 };
