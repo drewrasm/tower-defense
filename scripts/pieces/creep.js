@@ -7,12 +7,6 @@ MyGame.pieces.creep = function (spec) {
     spec.center = loc;
   };
 
-  // HOW WE ARE GONNA DO THIS PATH THING:
-  // we need a type of copy of the current state of the grid
-  // this is fine because when you press start, the grid won't change
-  // we need to assign a cost to each cell of the grid
-  // get the lowest cost and find the best path
-
   const setCells = (cells) => {
     myCells = [];
     for (let row of cells) {
@@ -90,50 +84,6 @@ MyGame.pieces.creep = function (spec) {
     }
     return path
   }
-
-
-
-  // MAY BE USEFUL LATER
-  //   const gatherCosts = (cell, visited) => {
-//     let adjacents = getAdjacentCells(cell);
-//     for (let a of adjacents) {
-//       if (!visited.includes(a)) {
-//         if(a.cost === null){
-//             a.cost = cell.cost + 1;
-//             console.log(`setting x:${a.loc.x}, y:${a.loc.y} to ${a.cost}`)
-//             console.log(visited.length)
-//             visited.push(a);
-//             gatherCosts(a, visited);
-//         }
-//       }
-//     }
-//   };
-
-//   const getShortestCostNeighbor = (cell) => {
-//     let neighbors = getAdjacentCells(cell);
-//     let min = neighbors[0];
-//     for (let n of neighbors) {
-//       if (n.cost < min.cost) {
-//         min = n;
-//       }
-//     }
-//     return min;
-//   };
-
-//   // SOMETHING IS WRONG
-//   const getBestPath = (start, goal) => {
-//     let path = [];
-//     myCells[start.x][start.y].cost = 0;
-//     gatherCosts(myCells[start.x][start.y], [myCells[start.x][start.y]]);
-//     debugger
-//     let current = myCells[goal.x][goal.y];
-//     while (current != myCells[start.x][start.y]) {
-//       let shortest = getShortestCostNeighbor(current);
-//       path.push(shortest);
-//       current = shortest;
-//     }
-//     return path;
-//   };
 
   return {
     get x() {

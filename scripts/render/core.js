@@ -257,7 +257,7 @@ MyGame.graphics = (function () {
 
     context.closePath();
     context.lineWidth = 4;
-    context.strokeStyle = "blue";
+    context.strokeStyle = "#00ffd5";
     context.stroke();
   };
 
