@@ -32,9 +32,8 @@ MyGame.screens["gameplay"] = (function (
 
   let inPlay = false;
 
-  let bird
-
   let turrets = [];
+  let creeps = [];
 
   let selectedNewPiece;
   let selectedGamePiece;
@@ -43,22 +42,6 @@ MyGame.screens["gameplay"] = (function (
     lastTimeStamp = performance.now();
     graphics.generateCells();
 
-    // for example
-    bird = pieces.creep({
-      center: {
-          x: graphics.cells[0][0].center.x,
-          y: graphics.cells[0][0].center.y,
-      },
-      size: {
-          x: 50,
-          y: 50,
-      },
-      roation: 0,
-      type: 'bird'
-  })
-    bird.setCells(graphics.cells)
-    console.log(bird)
-    
     cancelNextRequest = true;
     showGrid = true;
     showDescription = false;
@@ -192,19 +175,38 @@ MyGame.screens["gameplay"] = (function (
     imageSrc: "assets/buttons/show-grid.png",
   });
 
-
-    let birdRender = renderer.AnimatedModel({
-            spriteSheet: "assets/creeps/bird-west.png",
-            spriteCount: 3,
-            spriteTime: [100, 100, 100],
-        },
-        graphics
-    )
-
   // END OF STATE VARIABLES
 
-  const handleMouse = (e) => {
+  const addCreep = (cell, type, dest) => {
+    let newRenderer = renderer.AnimatedModel(
+      {
+        spriteSheet: `assets/creeps/${type}-west.png`,
+        spriteCount: type === 'bird' ? 3 : 8,
+        spriteTime: type === 'bird' ? [100, 100, 100] : [100, 100, 100, 100, 100, 100, 100, 100],
+      },
+      graphics
+    );
+    let newCreep = pieces.creep({
+      center: {
+          x: cell.center.x,
+          y: cell.center.y,
+      },
+      size: {
+          x: 50,
+          y: 50,
+      },
+      roation: 0,
+      type: type,
+      baseHealth: 10,
+      damage: 0,
+      renderer: newRenderer,
+    })
+    newCreep.setCells(graphics.cells)
+    creeps.push(newCreep);
+    newCreep.setBestPath(cell.loc, dest);
+  }
 
+  const handleMouse = (e) => {
     let loc = { x: e.offsetX, y: e.offsetY };
 
     if (!selectedNewPiece) {
@@ -213,7 +215,7 @@ MyGame.screens["gameplay"] = (function (
         inPlay = true;
       }
       if (utils.isInside(loc, resetButton)) {
-        if(!inPlay) {
+        if (!inPlay) {
           turrets = [];
         }
       }
@@ -224,7 +226,7 @@ MyGame.screens["gameplay"] = (function (
         console.log("upgrade");
       }
       if (utils.isInside(loc, airTurretIcon)) {
-        selectedNewPiece =  pieces.turret(utils.copyTurret(airTurretIcon));
+        selectedNewPiece = pieces.turret(utils.copyTurret(airTurretIcon));
         selectedGamePiece = null;
       } else if (utils.isInside(loc, groundTurretIcon)) {
         selectedNewPiece = pieces.turret(utils.copyTurret(groundTurretIcon));
@@ -232,21 +234,24 @@ MyGame.screens["gameplay"] = (function (
       } else if (utils.isInside(loc, bombIcon)) {
         selectedNewPiece = pieces.turret(utils.copyTurret(bombIcon));
         selectedGamePiece = null;
-      } 
+      }
     } else {
-      if(utils.isInside(selectedNewPiece, graphics.gameGrid)) {
-        let closest = utils.findClosestCell(selectedNewPiece.center, graphics.cells)
-        let newPiece = {...selectedNewPiece, center: closest.center};
+      if (utils.isInside(selectedNewPiece, graphics.gameGrid)) {
+        let closest = utils.findClosestCell(
+          selectedNewPiece.center,
+          graphics.cells
+        );
+        let newPiece = { ...selectedNewPiece, center: closest.center };
         turrets.push(newPiece);
-        graphics.occupyCell(closest.loc.x, closest.loc.y, newPiece)
-        console.log(turrets)
+        graphics.occupyCell(closest.loc.x, closest.loc.y, newPiece);
+        console.log(turrets);
       }
       selectedNewPiece = null;
     }
 
-    if(!selectedGamePiece) {
-      for(let t of turrets) {
-        if(utils.isInside(loc, t)) {
+    if (!selectedGamePiece) {
+      for (let t of turrets) {
+        if (utils.isInside(loc, t)) {
           selectedGamePiece = t;
           break;
         }
@@ -261,14 +266,14 @@ MyGame.screens["gameplay"] = (function (
 
     if (selectedNewPiece) {
       selectedNewPiece.setCenter({ ...loc });
-      if(utils.isInside(loc, graphics.gameGrid)) {
+      if (utils.isInside(loc, graphics.gameGrid)) {
         selectedNewPiece.setShowRadius(true);
       } else {
         selectedNewPiece.setShowRadius(false);
       }
     }
-    if(selectedGamePiece) {
-      if(utils.isInside(loc, graphics.gameGrid)) {
+    if (selectedGamePiece) {
+      if (utils.isInside(loc, graphics.gameGrid)) {
         selectedGamePiece.setShowRadius(true);
       } else {
         selectedGamePiece.setShowRadius(false);
@@ -276,7 +281,7 @@ MyGame.screens["gameplay"] = (function (
     }
 
     // TODO: make the menu portion change based off of upgrades
-    if(!selectedNewPiece) {
+    if (!selectedNewPiece) {
       if (utils.isInside(loc, bombIcon)) {
         showDescription = true;
         let newSrc = `assets/descriptions/bomb-${1}-description.png`;
@@ -312,17 +317,20 @@ MyGame.screens["gameplay"] = (function (
 
   function update(elapsedTime) {
     // update
-    birdRender.update(elapsedTime);
+    for(let creep of creeps) {
+      creep.renderer.update(elapsedTime);
+      creep.move(elapsedTime);
+    }
   }
 
   function render() {
     graphics.clear();
 
-    if(selectedNewPiece?.showRadius) {
-      graphics.drawCircle(selectedNewPiece, '#6699CC');
+    if (selectedNewPiece?.showRadius) {
+      graphics.drawCircle(selectedNewPiece, "#6699CC");
     }
-    if(selectedGamePiece?.showRadius) {
-      graphics.drawCircle(selectedGamePiece, '#6699CC');
+    if (selectedGamePiece?.showRadius) {
+      graphics.drawCircle(selectedGamePiece, "#6699CC");
     }
 
     if (showGrid) {
@@ -330,11 +338,10 @@ MyGame.screens["gameplay"] = (function (
     }
     graphics.drawBorder();
 
-    birdRender.render(bird);
-
     renderer.Model.render(groundTurretIcon);
     renderer.Model.render(airTurretIcon);
     renderer.Model.render(bombIcon);
+
     if (showDescription) {
       renderer.Model.render(description);
     }
@@ -352,9 +359,15 @@ MyGame.screens["gameplay"] = (function (
     if (selectedNewPiece) {
       renderer.Model.render(selectedNewPiece);
     }
-
-    for(let turret of turrets) {
+    
+    for (let turret of turrets) {
       renderer.Model.render(turret);
+    }
+
+    for (let creep of creeps) {
+      graphics.drawRectangle(creep.healthRects.red, "red", "red");
+      graphics.drawRectangle(creep.healthRects.green, "green", "green");
+      creep.renderer.render(creep);
     }
   }
 
