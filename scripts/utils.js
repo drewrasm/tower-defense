@@ -1,6 +1,11 @@
 MyGame.utils = (function () {
   "use strict";
 
+
+  const remove = (list, item) => {
+    list.splice(list.indexOf(item), 1)
+  }
+
   const isIntersecting = (first, second) => {
     return (
       !(
@@ -121,6 +126,7 @@ MyGame.utils = (function () {
   };
 
   let api = {
+    remove,
     isInside,
     isIntersecting,
     copyTurret,

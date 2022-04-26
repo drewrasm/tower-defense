@@ -4,8 +4,6 @@ MyGame.pieces.lazer = function (spec) {
   let imageReady = false;
   let image = new Image();
 
-  let start = {...spec.center};
-
   let moveRate = spec.moveRate || 0.1;
 
   image.onload = function () {
@@ -14,21 +12,9 @@ MyGame.pieces.lazer = function (spec) {
   image.src = spec.imageSrc;
 
   const updateMovement = (elapsedTime) => {
-    let dist = moveRate * elapsedTime;
-    let newX;
-    let newY;
-
-    if(spec.goal.x < start.x) {
-        newX = spec.center.x - dist * Math.cos(spec.angle);
-    } else {
-        newX = spec.center.x + dist * Math.cos(spec.angle);
-    }
-
-    if(spec.goal.y < start.y) {
-        newY = spec.center.x - dist * Math.cos(spec.angle);
-    } else {
-        newY = spec.center.x + dist * Math.cos(spec.angle);
-    }
+    let dist = (moveRate * elapsedTime);
+    let newX = spec.center.x - dist * Math.cos(spec.angle);
+    let newY = spec.center.y - dist * Math.sin(spec.angle);
 
     spec.center.x = newX;
     spec.center.y = newY;

@@ -189,7 +189,7 @@ MyGame.screens["gameplay"] = (function (
       angle: utils.getAngle(from, goal),
       imageSrc: `assets/guns/bullet-${powerLevel}.png`,
     }))
-    console.log(lazers);
+    // console.log(lazers);
   }
 
   const addCreep = (cell, type, dest) => {
@@ -335,7 +335,7 @@ MyGame.screens["gameplay"] = (function (
     // update
     for(let creep of creeps) {
       creep.renderer.update(elapsedTime);
-      // creep.move(elapsedTime);
+      creep.move(elapsedTime);
     }
     for(let l of lazers) {
       l.updateMovement(elapsedTime)
@@ -381,6 +381,9 @@ MyGame.screens["gameplay"] = (function (
 
     for(let l of lazers) {
       renderer.Model.render(l);
+      if(!utils.isInside(l, graphics.gameGrid)){
+        utils.remove(lazers, l);
+      }
     }
     
     for (let turret of turrets) {
