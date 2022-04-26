@@ -25,6 +25,18 @@ MyGame.utils = (function () {
     );
   };
 
+  const getAngle = (a, b) => {
+    let dy = a.center.y - b.center.y;
+    let dx = a.center.x - b.center.x;
+    return Math.atan2(dy, dx);
+  };
+
+  const getSlope = (a, b) => {
+    let dy = a.center.y - b.center.y;
+    let dx = a.center.x - b.center.x;
+    return dy/dx;
+  }
+
   const copyTurret = (turret) => {
     return {
       center: {
@@ -35,38 +47,88 @@ MyGame.utils = (function () {
         x: turret.size.x,
         y: turret.size.y,
       },
-      roation: turret.roation,
+      rotation: 0,
       imageSrc: turret.imageSrc,
-      radius: turret.radius
-    }
+      radius: turret.radius,
+    };
+  };
+
+  const levels = {
+    1: {
+      1: {
+        knight: 5,
+        turtle: 5,
+        birds: 0,
+      },
+      2: {
+        knight: 7,
+        turtle: 7,
+        birds: 0,
+      },
+    },
+    2: {
+      1: {
+        knight: 8,
+        turtle: 8,
+        birds: 0,
+      },
+      2: {
+        knight: 10,
+        turtle: 10,
+        birds: 1,
+      },
+    },
+    3: {
+      knight: 10,
+      turtle: 10,
+      birds: 5,
+    },
+  };
+
+  const getDistance = (a, b) => {
+    return (Math.abs(a.center.x - b.center.x) + Math.abs(a.center.y - b.center.y));
   }
-  
-  const turretTypes = {
-    
+
+  const getClosest = (obj, targets) => {
+    let closest = null;
+    for(let t of targets) {
+      if(closest) {
+        if(getDistance(t, obj) < getDistance(closest, obj)) {
+          closest = t;
+        }
+      } else {
+        closest = t;
+      }
+    }
+    return closest
   }
 
   const findClosestCell = (loc, cells) => {
     let closest = cells[0][0];
-    for(let row of cells) {
-      for(let cell of row) {
-        let currentDiff = Math.abs(cell.center.x - loc.x) + Math.abs(cell.center.y - loc.y);
-        let closestDiff = Math.abs(closest.center.x - loc.x) + Math.abs(closest.center.y - loc.y);
-        if(currentDiff < closestDiff) {
+    for (let row of cells) {
+      for (let cell of row) {
+        let currentDiff =
+          Math.abs(cell.center.x - loc.x) + Math.abs(cell.center.y - loc.y);
+        let closestDiff =
+          Math.abs(closest.center.x - loc.x) +
+          Math.abs(closest.center.y - loc.y);
+        if (currentDiff < closestDiff) {
           closest = cell;
         }
       }
     }
-    return closest
-
-  }
+    return closest;
+  };
 
   let api = {
     isInside,
     isIntersecting,
     copyTurret,
-    findClosestCell
+    findClosestCell,
+    getAngle,
+    getClosest,
+    levels,
   };
-
 
   return api;
 })();

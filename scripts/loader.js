@@ -90,6 +90,11 @@ MyGame.loader = (function () {
       onComplete: null,
     },
     {
+      scripts: ["pieces/lazer"],
+      message: "lazer piece loaded",
+      onComplete: null,
+    },
+    {
       scripts: ["pieces/bomb"],
       message: "bomb piece loaded",
       onComplete: null,

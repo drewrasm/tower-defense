@@ -27,13 +27,14 @@ MyGame.screens["gameplay"] = (function (
   let time = 0;
 
   let level = 1;
-  let lives = 3;
+  let lives = 2;
   let gold = 100;
 
   let inPlay = false;
 
   let turrets = [];
   let creeps = [];
+  let lazers = [];
 
   let selectedNewPiece;
   let selectedGamePiece;
@@ -89,7 +90,7 @@ MyGame.screens["gameplay"] = (function (
       x: 90,
       y: 40,
     },
-    roation: 0,
+    rotation: 0,
     imageSrc: "assets/buttons/start-button.png",
   });
 
@@ -102,7 +103,7 @@ MyGame.screens["gameplay"] = (function (
       x: 90,
       y: 40,
     },
-    roation: 0,
+    rotation: 0,
     imageSrc: "assets/buttons/reset-button.png",
   });
 
@@ -116,7 +117,7 @@ MyGame.screens["gameplay"] = (function (
       y: graphics.gameGrid.cellWidth,
     },
     radius: 100,
-    roation: 0,
+    rotation: 0,
     imageSrc: "assets/guns/ground-turret-1.png",
   });
   let airTurretIcon = pieces.turret({
@@ -129,7 +130,7 @@ MyGame.screens["gameplay"] = (function (
       y: graphics.gameGrid.cellWidth,
     },
     radius: 100,
-    roation: 0,
+    rotation: 0,
     imageSrc: "assets/guns/air-turret-1.png",
   });
   let bombIcon = pieces.turret({
@@ -141,7 +142,7 @@ MyGame.screens["gameplay"] = (function (
       x: graphics.gameGrid.cellWidth,
       y: graphics.gameGrid.cellWidth,
     },
-    roation: 0,
+    rotation: 0,
     radius: 100,
     imageSrc: "assets/guns/bomb-1.png",
   });
@@ -152,7 +153,7 @@ MyGame.screens["gameplay"] = (function (
       x: 110,
       y: 175,
     },
-    roation: 0,
+    rotation: 0,
     imageSrc: "assets/descriptions/ground-turret-1-description.png",
   });
 
@@ -162,7 +163,7 @@ MyGame.screens["gameplay"] = (function (
       x: 90,
       y: 40,
     },
-    roation: 0,
+    rotation: 0,
     imageSrc: "assets/buttons/upgrade-button.png",
   });
   let showGridButton = pieces.button({
@@ -171,11 +172,25 @@ MyGame.screens["gameplay"] = (function (
       x: 90,
       y: 40,
     },
-    roation: 0,
+    rotation: 0,
     imageSrc: "assets/buttons/show-grid.png",
   });
 
   // END OF STATE VARIABLES
+
+  const addLazer = (from, goal, powerLevel) => {
+    lazers.push(pieces.lazer({
+      center: {...from.center},
+      goal: {...goal.center},
+      size: {
+        x: 10,
+        y: 10,
+      },
+      angle: utils.getAngle(from, goal),
+      imageSrc: `assets/guns/bullet-${powerLevel}.png`,
+    }))
+    console.log(lazers);
+  }
 
   const addCreep = (cell, type, dest) => {
     let newRenderer = renderer.AnimatedModel(
@@ -195,7 +210,7 @@ MyGame.screens["gameplay"] = (function (
           x: 50,
           y: 50,
       },
-      roation: 0,
+      rotation: 0,
       type: type,
       baseHealth: 10,
       damage: 0,
@@ -204,6 +219,7 @@ MyGame.screens["gameplay"] = (function (
     newCreep.setCells(graphics.cells)
     creeps.push(newCreep);
     newCreep.setBestPath(cell.loc, dest);
+    console.log(newCreep)
   }
 
   const handleMouse = (e) => {
@@ -319,7 +335,10 @@ MyGame.screens["gameplay"] = (function (
     // update
     for(let creep of creeps) {
       creep.renderer.update(elapsedTime);
-      creep.move(elapsedTime);
+      // creep.move(elapsedTime);
+    }
+    for(let l of lazers) {
+      l.updateMovement(elapsedTime)
     }
   }
 
@@ -358,6 +377,10 @@ MyGame.screens["gameplay"] = (function (
 
     if (selectedNewPiece) {
       renderer.Model.render(selectedNewPiece);
+    }
+
+    for(let l of lazers) {
+      renderer.Model.render(l);
     }
     
     for (let turret of turrets) {
