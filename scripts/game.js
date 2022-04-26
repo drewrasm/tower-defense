@@ -186,6 +186,7 @@ MyGame.screens["gameplay"] = (function (
         x: 10,
         y: 10,
       },
+      powerLevel: powerLevel,
       angle: utils.getAngle(from, goal),
       imageSrc: `assets/guns/bullet-${powerLevel}.png`,
     }))
@@ -212,7 +213,7 @@ MyGame.screens["gameplay"] = (function (
       },
       rotation: 0,
       type: type,
-      baseHealth: 10,
+      baseHealth: utils.getBaseHealth(level),
       damage: 0,
       renderer: newRenderer,
     })
@@ -331,14 +332,48 @@ MyGame.screens["gameplay"] = (function (
     mouse.update(elapsedTime);
   }
 
+  // let testTime = 0;
+
   function update(elapsedTime) {
+    testTime += elapsedTime
+
+    // if(testTime > 2000 && turrets.length > 0 && creeps.length > 0) {
+    //   for(let t of turrets) {
+    //     addLazer(t, creeps[0], 1)
+    //   }
+    //   testTime = 0;
+    // } else if(creeps.length < 3) {
+    //   setTimeout(() => {
+    //     addCreep(graphics.cells[0][5], 'knight', graphics.cells[11][5].loc)
+    //   }, 1000)
+    //   addCreep(graphics.cells[0][5], 'knight', graphics.cells[11][5].loc)
+    // }
+
+
     // update
-    for(let creep of creeps) {
-      creep.renderer.update(elapsedTime);
-      creep.move(elapsedTime);
-    }
     for(let l of lazers) {
       l.updateMovement(elapsedTime)
+    }
+    for(let c of creeps) {
+      if(c.health === 0) {
+        utils.remove(creeps, c);
+      } else {
+        c.renderer.update(elapsedTime);
+        c.move(elapsedTime);
+        if(c.center.x === c.goal.center.x && c.center.y === c.goal.center.y) {
+          // HANDLE A VICTORIOUS CREEP
+          utils.remove(creeps, c);
+        }
+      }
+    }
+
+    for(let l of lazers) {
+      for(let c of creeps) {
+        if(utils.isIntersecting(l, c)) {
+          c.handleHit(l.damage)
+          utils.remove(lazers, l);
+        }
+      }
     }
   }
 

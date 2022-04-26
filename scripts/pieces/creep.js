@@ -1,7 +1,7 @@
 MyGame.pieces.creep = function (spec) {
   "use strict";
 
-  let animationTime = 50;
+  let animationTime = 250;
   let animationSegments = 10;
 
   let moveTime = 0;
@@ -10,6 +10,8 @@ MyGame.pieces.creep = function (spec) {
 
   let path = [];
   let currentCell = null;
+
+  let goal = null;
 
   const move = (elapsedTime) => {
     moveTime += elapsedTime; 
@@ -198,6 +200,7 @@ MyGame.pieces.creep = function (spec) {
       path.push(parent);
       parent = parent.parent;
     }
+    goal = path.length > 1 ? path[0] : null;
     return path;
   };
 
@@ -231,6 +234,9 @@ MyGame.pieces.creep = function (spec) {
     },
     get path() {
       return path;
+    },
+    get goal() {
+      return goal;
     },
     handleHit,
     setCenter,

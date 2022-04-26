@@ -12,12 +12,18 @@ MyGame.pieces.lazer = function (spec) {
   image.src = spec.imageSrc;
 
   const updateMovement = (elapsedTime) => {
-    let dist = (moveRate * elapsedTime);
+    let dist = moveRate * elapsedTime;
     let newX = spec.center.x - dist * Math.cos(spec.angle);
     let newY = spec.center.y - dist * Math.sin(spec.angle);
 
     spec.center.x = newX;
     spec.center.y = newY;
+  };
+
+  const damageLevels = {
+    1: 2,
+    2: 3,
+    3: 4,
   };
 
   return {
@@ -31,7 +37,7 @@ MyGame.pieces.lazer = function (spec) {
       return spec.center;
     },
     get size() {
-        return spec.size;
+      return spec.size;
     },
     get image() {
       return image;
@@ -41,6 +47,9 @@ MyGame.pieces.lazer = function (spec) {
     },
     get angle() {
       return spec.angle || 0;
+    },
+    get damage() {
+      return damageLevels[spec.powerLevel];
     },
     updateMovement,
   };

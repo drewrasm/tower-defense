@@ -125,6 +125,17 @@ MyGame.utils = (function () {
     return closest;
   };
 
+  const levelsToHealth = {
+    1: 20,
+    2: 30,
+    3: 40,
+    3: 45,
+  }
+
+  const getBaseHealth = (level=1) => {
+    return levelsToHealth[level]
+  }
+
   let api = {
     remove,
     isInside,
@@ -133,6 +144,7 @@ MyGame.utils = (function () {
     findClosestCell,
     getAngle,
     getClosest,
+    getBaseHealth,
     levels,
   };
 
