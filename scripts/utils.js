@@ -55,6 +55,8 @@ MyGame.utils = (function () {
       rotation: 0,
       imageSrc: turret.imageSrc,
       radius: turret.radius,
+      type: turret.type,
+      level: turret.level,
     };
   };
 
@@ -132,6 +134,19 @@ MyGame.utils = (function () {
     3: 45,
   }
 
+  function throttle(fn, limit) {
+    let waiting = false;
+    return (...args) => {
+      if (!waiting) {
+        fn.apply(this, args);
+        waiting = true;
+        setTimeout(() => {
+          waiting = false;
+        }, limit);
+      }
+    };
+  }
+
   const getBaseHealth = (level=1) => {
     return levelsToHealth[level]
   }
@@ -145,6 +160,7 @@ MyGame.utils = (function () {
     getAngle,
     getClosest,
     getBaseHealth,
+    throttle,
     levels,
   };
 

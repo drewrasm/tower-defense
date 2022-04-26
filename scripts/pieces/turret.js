@@ -3,6 +3,20 @@ MyGame.pieces.turret = function(spec) {
 
     let imageReady = false;
     let image = new Image();
+  
+    const initializeImage = (newImage = null) => {
+      image.onload = function () {
+        imageReady = true;
+      };
+      image.src = newImage || spec.imageSrc;
+    };
+  
+    initializeImage();
+  
+    const changeImage = (newSrc) => {
+      spec.imageSrc = newSrc;
+      initializeImage();
+    };
 
     let showRadius = false;
 
@@ -17,6 +31,28 @@ MyGame.pieces.turret = function(spec) {
 
     const setShowRadius = (show) => {
         showRadius = show;
+    }
+
+    const priceMap = {
+        ground: {
+            1: 5,
+            2: 10,
+            3: 15
+        },
+        bomb: {
+          1: 3,
+          2: 5,
+          3: 10,
+        },
+        air: {
+            1: 5,
+            2: 10,
+            3: 15
+        }
+    }
+
+    const getPrice = (lvl=null) => {
+        return priceMap[spec.type][lvl || spec.level]
     }
 
     return {
@@ -53,7 +89,15 @@ MyGame.pieces.turret = function(spec) {
         get showRadius() {
             return showRadius;
         },
+        get level() {
+            return spec.level;
+        },
+        get type() {
+            return spec.type;
+        },
         setCenter,
-        setShowRadius
+        setShowRadius,
+        changeImage,
+        getPrice
     };
 };

@@ -86,6 +86,7 @@ button:hover {
 .selected {
     background-color: var(--lt-grey);
     border-radius: 10px;
+    color: var(--dark-grey);
 }
 
 .controls-config  {
@@ -116,6 +117,7 @@ button:hover {
 
 .control:hover {
     background-color: var(--teal);
+    color: var(--dark-grey);
 }   
 
 .score-show:hover {

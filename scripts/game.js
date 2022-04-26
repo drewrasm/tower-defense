@@ -28,7 +28,7 @@ MyGame.screens["gameplay"] = (function (
 
   let level = 1;
   let lives = 2;
-  let gold = 100;
+  let gold = 10;
 
   let inPlay = false;
 
@@ -39,7 +39,7 @@ MyGame.screens["gameplay"] = (function (
   let selectedNewPiece;
   let selectedGamePiece;
 
-  const initVars = () => {
+  const initVars = (newGame=true) => {
     lastTimeStamp = performance.now();
     graphics.generateCells();
 
@@ -50,6 +50,15 @@ MyGame.screens["gameplay"] = (function (
     selectedNewPiece = null;
     selectedGamePiece = null;
     inPlay = false;
+
+    if(newGame) {
+      turrets = [];
+      creeps = [];
+      lazers = [];
+      level = 1;
+      lives = 2;
+      gold = 10;
+    }
   };
 
   let timeText = pieces.text({
@@ -94,7 +103,7 @@ MyGame.screens["gameplay"] = (function (
     imageSrc: "assets/buttons/start-button.png",
   });
 
-  let resetButton = pieces.button({
+  let sellButton = pieces.button({
     center: {
       x: 750,
       y: 100,
@@ -104,7 +113,7 @@ MyGame.screens["gameplay"] = (function (
       y: 40,
     },
     rotation: 0,
-    imageSrc: "assets/buttons/reset-button.png",
+    imageSrc: "assets/buttons/sell-button.png",
   });
 
   let groundTurretIcon = pieces.turret({
@@ -118,7 +127,9 @@ MyGame.screens["gameplay"] = (function (
     },
     radius: 100,
     rotation: 0,
+    level: 1,
     imageSrc: "assets/guns/ground-turret-1.png",
+    type: 'ground',
   });
   let airTurretIcon = pieces.turret({
     center: {
@@ -132,6 +143,8 @@ MyGame.screens["gameplay"] = (function (
     radius: 100,
     rotation: 0,
     imageSrc: "assets/guns/air-turret-1.png",
+    type: 'air',
+    level: 1,
   });
   let bombIcon = pieces.turret({
     center: {
@@ -145,6 +158,8 @@ MyGame.screens["gameplay"] = (function (
     rotation: 0,
     radius: 100,
     imageSrc: "assets/guns/bomb-1.png",
+    type: 'bomb',
+    level: 1,
   });
 
   let description = pieces.button({
@@ -178,7 +193,11 @@ MyGame.screens["gameplay"] = (function (
 
   // END OF STATE VARIABLES
 
-  const addLazer = (from, goal, powerLevel) => {
+  const handleStart = utils.throttle(() => {
+    console.log('START!')
+  }, 1000)
+
+  const addLazer = (from, goal) => {
     lazers.push(pieces.lazer({
       center: {...from.center},
       goal: {...goal.center},
@@ -186,11 +205,10 @@ MyGame.screens["gameplay"] = (function (
         x: 10,
         y: 10,
       },
-      powerLevel: powerLevel,
+      powerLevel: from.level,
       angle: utils.getAngle(from, goal),
-      imageSrc: `assets/guns/bullet-${powerLevel}.png`,
+      imageSrc: `assets/guns/bullet-${from.level}.png`,
     }))
-    // console.log(lazers);
   }
 
   const addCreep = (cell, type, dest) => {
@@ -223,24 +241,50 @@ MyGame.screens["gameplay"] = (function (
     console.log(newCreep)
   }
 
+  const handleUpgrade = utils.throttle(() => {
+    console.log('upgrade', selectedGamePiece)
+    if(selectedGamePiece) {
+      if(gold - (selectedGamePiece.getPrice(selectedGamePiece.level + 1) - selectedGamePiece.getPrice()) >= 0){
+        let oldPrice = selectedGamePiece.getPrice();
+        selectedGamePiece.level += 1;
+        let newPrice = selectedGamePiece.getPrice();
+        gold -= newPrice - oldPrice;
+        goldText.updateText(`Gold ${gold}`);
+        let gunType = selectedGamePiece.type === 'bomb' ? selectedGamePiece.type : `${selectedGamePiece.type}-turret`
+        selectedGamePiece.changeImage(`assets/guns/${gunType}-${selectedGamePiece.level}.png`)
+      }
+    }
+  }, 1000)
+
+  const handleSell = utils.throttle(() => {
+    if(!inPlay && selectedGamePiece !== null) {
+      gold += selectedGamePiece.getPrice();
+      goldText.updateText(`Gold ${gold}`);
+      utils.remove(turrets, selectedGamePiece)
+      selectedGamePiece = null;
+    }
+  }, 1000)
+
   const handleMouse = (e) => {
     let loc = { x: e.offsetX, y: e.offsetY };
 
+    if (utils.isInside(loc, upgradeButton)) {
+      if(selectedGamePiece) {
+        handleUpgrade();
+      }
+    }
     if (!selectedNewPiece) {
       if (utils.isInside(loc, startButton)) {
         console.log("start");
         inPlay = true;
       }
-      if (utils.isInside(loc, resetButton)) {
-        if (!inPlay) {
-          turrets = [];
+      if (utils.isInside(loc, sellButton)) {
+        if (!inPlay && selectedGamePiece) {
+          handleSell()
         }
       }
       if (utils.isInside(loc, showGridButton)) {
         showGrid = !showGrid;
-      }
-      if (utils.isInside(loc, upgradeButton)) {
-        console.log("upgrade");
       }
       if (utils.isInside(loc, airTurretIcon)) {
         selectedNewPiece = pieces.turret(utils.copyTurret(airTurretIcon));
@@ -259,9 +303,15 @@ MyGame.screens["gameplay"] = (function (
           graphics.cells
         );
         let newPiece = { ...selectedNewPiece, center: closest.center };
-        turrets.push(newPiece);
-        graphics.occupyCell(closest.loc.x, closest.loc.y, newPiece);
-        console.log(turrets);
+        if(gold - newPiece.getPrice() >= 0) {
+          turrets.push(newPiece);
+          graphics.occupyCell(closest.loc.x, closest.loc.y, newPiece);
+          gold -= newPiece.getPrice();
+          goldText.updateText(`Gold ${gold}`);
+          console.log(turrets);
+        } else {
+          selectedNewPiece = null;
+        }
       }
       selectedNewPiece = null;
     }
@@ -335,7 +385,7 @@ MyGame.screens["gameplay"] = (function (
   // let testTime = 0;
 
   function update(elapsedTime) {
-    testTime += elapsedTime
+    // testTime += elapsedTime
 
     // if(testTime > 2000 && turrets.length > 0 && creeps.length > 0) {
     //   for(let t of turrets) {
@@ -351,6 +401,8 @@ MyGame.screens["gameplay"] = (function (
 
 
     // update
+    updateKeys();
+
     for(let l of lazers) {
       l.updateMovement(elapsedTime)
     }
@@ -406,7 +458,7 @@ MyGame.screens["gameplay"] = (function (
     renderer.Text.render(livesText);
 
     renderer.Model.render(startButton);
-    renderer.Model.render(resetButton);
+    renderer.Model.render(sellButton);
     renderer.Model.render(upgradeButton);
     renderer.Model.render(showGridButton);
 
@@ -443,6 +495,21 @@ MyGame.screens["gameplay"] = (function (
 
     requestAnimationFrame(gameLoop);
   }
+
+  const updateKeys = () => {
+    keyboard.register(
+      window.localStorage.getItem("sell") || "s",
+      handleSell
+    );
+    keyboard.register(
+      window.localStorage.getItem("start") || "g",
+      handleStart
+    );
+    keyboard.register(
+      window.localStorage.getItem("upgrade") || "u",
+      handleUpgrade
+    );
+  };
 
   //------------------------------------------------------------------
   //
