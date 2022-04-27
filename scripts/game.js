@@ -250,6 +250,7 @@ MyGame.screens["gameplay"] = (function (
         goldText.updateText(`Gold ${gold}`);
         let gunType = selectedGamePiece.type === 'bomb' ? selectedGamePiece.type : `${selectedGamePiece.type}-turret`
         selectedGamePiece.changeImage(`assets/guns/${gunType}-${selectedGamePiece.level}.png`)
+        selectedGamePiece.radius = utils.updateRadius(selectedGamePiece.type, selectedGamePiece.level)
       }
     }
   }, 1000)

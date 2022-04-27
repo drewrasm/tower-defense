@@ -1,10 +1,9 @@
 MyGame.utils = (function () {
   "use strict";
 
-
   const remove = (list, item) => {
-    list.splice(list.indexOf(item), 1)
-  }
+    list.splice(list.indexOf(item), 1);
+  };
 
   const isIntersecting = (first, second) => {
     return (
@@ -34,24 +33,26 @@ MyGame.utils = (function () {
     let circleDistX = Math.abs(loc.center.x - obj.center.x);
     let circleDistY = Math.abs(loc.center.y - obj.center.y);
 
-    if(circleDistX > ((obj.size.x/2) + radius)){
-      return false
+    if (circleDistX > obj.size.x / 2 + radius) {
+      return false;
     }
-    if(circleDistY > ((obj.size.y / 2) + radius)) {
-      return false
-    }
-
-    if(circleDistX <= (obj.size.x / 2)) {
-      return true
-    }
-    if(circleDistY <= (obj.size.y / 2)) {
-      return true
+    if (circleDistY > obj.size.y / 2 + radius) {
+      return false;
     }
 
-    let corenerDist = Math.pow((circleDistX - (obj.size.x / 2)), 2) + Math.pow((circleDistY - (obj.size.y / 2)), 2)
+    if (circleDistX <= obj.size.x / 2) {
+      return true;
+    }
+    if (circleDistY <= obj.size.y / 2) {
+      return true;
+    }
 
-    return corenerDist <= (Math.pow(radius, 2));
-  }
+    let corenerDist =
+      Math.pow(circleDistX - obj.size.x / 2, 2) +
+      Math.pow(circleDistY - obj.size.y / 2, 2);
+
+    return corenerDist <= Math.pow(radius, 2);
+  };
 
   const getAngle = (a, b) => {
     let dy = a.center.y - b.center.y;
@@ -62,8 +63,8 @@ MyGame.utils = (function () {
   const getSlope = (a, b) => {
     let dy = a.center.y - b.center.y;
     let dx = a.center.x - b.center.x;
-    return dy/dx;
-  }
+    return dy / dx;
+  };
 
   const copyTurret = (turret) => {
     return {
@@ -80,7 +81,7 @@ MyGame.utils = (function () {
       radius: turret.radius,
       type: turret.type,
       level: turret.level,
-      coolDownTime: 0
+      coolDownTime: 0,
     };
   };
 
@@ -115,14 +116,11 @@ MyGame.utils = (function () {
       bird: 5,
     },
   };
-  
 
   const indicatorLocs = {
-    1: [
-      { x: 15, y: 315 }
-    ],
+    1: [{ x: 15, y: 315 }],
     2: [{ x: 325, y: 15 }],
-  }
+  };
 
   const startPoints = {
     1: {
@@ -130,30 +128,30 @@ MyGame.utils = (function () {
         minX: 0,
         maxX: 0,
         minY: 4,
-        maxY: 7
+        maxY: 7,
       },
       goal: {
         minX: 11,
         maxX: 11,
         minY: 4,
         maxY: 7,
-      }
+      },
     },
     2: {
       start: {
         minX: 4,
         maxX: 7,
         minY: 0,
-        maxY:0,
+        maxY: 0,
       },
       goal: {
         minX: 4,
         maxX: 7,
         minY: 11,
         maxY: 11,
-      }
-    }
-  }
+      },
+    },
+  };
 
   const shuffleList = (list) => {
     for (let i = list.length - 1; i > 0; i--) {
@@ -161,51 +159,68 @@ MyGame.utils = (function () {
       [list[i], list[j]] = [list[j], list[i]];
     }
     return list;
-  }
+  };
 
   const generateLevelStats = (level, wave) => {
-    let types = ['bird', 'knight', 'turtle']
+    let types = ["bird", "knight", "turtle"];
     let stats = {
-      creepStats: []
-    }
+      creepStats: [],
+    };
     let creepNums = levels[level][wave];
-    for(let type of types) {
-      for(let i = 0; i< creepNums[type]; i++) {
+    for (let type of types) {
+      for (let i = 0; i < creepNums[type]; i++) {
         stats.creepStats.push({
-            start: {
-              x: Random.nextRange(startPoints[level].start.minX, startPoints[level].start.maxX),
-              y: Random.nextRange(startPoints[level].start.minY, startPoints[level].start.maxY)
-            },
-            goal: {
-              x: Random.nextRange(startPoints[level].goal.minX, startPoints[level].goal.maxX),
-              y: Random.nextRange(startPoints[level].goal.minY, startPoints[level].goal.maxY)
-            },
-            type: type
-        })
+          start: {
+            x: Random.nextRange(
+              startPoints[level].start.minX,
+              startPoints[level].start.maxX
+            ),
+            y: Random.nextRange(
+              startPoints[level].start.minY,
+              startPoints[level].start.maxY
+            ),
+          },
+          goal: {
+            x: Random.nextRange(
+              startPoints[level].goal.minX,
+              startPoints[level].goal.maxX
+            ),
+            y: Random.nextRange(
+              startPoints[level].goal.minY,
+              startPoints[level].goal.maxY
+            ),
+          },
+          type: type,
+        });
       }
     }
     stats.creepStats = shuffleList(stats.creepStats);
-    stats.indicators = level < 3 ? indicatorLocs[level] : [indicatorLocs[1][0], indicatorLocs[0][0]];
+    stats.indicators =
+      level < 3
+        ? indicatorLocs[level]
+        : [indicatorLocs[1][0], indicatorLocs[0][0]];
     return stats;
-  }
+  };
 
   const getDistance = (a, b) => {
-    return (Math.abs(a.center.x - b.center.x) + Math.abs(a.center.y - b.center.y));
-  }
+    return (
+      Math.abs(a.center.x - b.center.x) + Math.abs(a.center.y - b.center.y)
+    );
+  };
 
   const getClosest = (obj, targets) => {
     let closest = null;
-    for(let t of targets) {
-      if(closest) {
-        if(getDistance(t, obj) < getDistance(closest, obj)) {
+    for (let t of targets) {
+      if (closest) {
+        if (getDistance(t, obj) < getDistance(closest, obj)) {
           closest = t;
         }
       } else {
         closest = t;
       }
     }
-    return closest
-  }
+    return closest;
+  };
 
   const findClosestCell = (loc, cells) => {
     let closest = cells[0][0];
@@ -229,7 +244,7 @@ MyGame.utils = (function () {
     2: 30,
     3: 40,
     3: 45,
-  }
+  };
 
   function throttle(fn, limit) {
     let waiting = false;
@@ -244,22 +259,44 @@ MyGame.utils = (function () {
     };
   }
 
-  const getBaseHealth = (level=1) => {
-    return levelsToHealth[level]
-  }
+  const getBaseHealth = (level = 1) => {
+    return levelsToHealth[level];
+  };
 
   const typeMatches = (turret, creep) => {
-    if(turret.type === 'air' && creep.type === 'bird') {
+    if (turret.type === "air" && creep.type === "bird") {
       return true;
     }
-    if(turret.type === 'ground' && creep.type !== 'bird') {
+    if (turret.type === "ground" && creep.type !== "bird") {
       return true;
     }
-    if(turret.type === 'bomb' && creep.type !== 'bird') {
+    if (turret.type === "bomb" && creep.type !== "bird") {
       return true;
     }
-    return turret.type === 'both';
-  }
+    return turret.type === "both";
+  };
+
+  const radiusMap = {
+    ground: {
+      1: 100,
+      2: 125,
+      3: 175,
+    },
+    bomb: {
+      1: 100,
+      2: 150,
+      3: 200,
+    },
+    air: {
+      1: 100,
+      2: 125,
+      3: 175,
+    },
+  };
+
+  let updateRadius = (type, level) => {
+    return radiusMap[type][level];
+  };
 
   let api = {
     remove,
@@ -274,6 +311,7 @@ MyGame.utils = (function () {
     throttle,
     generateLevelStats,
     typeMatches,
+    updateRadius,
     levels,
   };
 
