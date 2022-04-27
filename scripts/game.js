@@ -29,6 +29,8 @@ MyGame.screens["gameplay"] = (function (
 
   let inPlay = false;
 
+  let showMessage = false;
+
   let indicators = [];
   let turrets = [];
   let creeps = [];
@@ -65,13 +67,6 @@ MyGame.screens["gameplay"] = (function (
     }
   };
 
-  let timeText = pieces.text({
-    text: `Time ${time}`,
-    font: `${20}px Arial`,
-    fillStyle: " #cccccc",
-    strokeStyle: " #cccccc",
-    position: { x: 25, y: 2 },
-  });
   let levelText = pieces.text({
     text: `Level ${level}`,
     font: `${20}px Courier, monospace`,
@@ -92,6 +87,13 @@ MyGame.screens["gameplay"] = (function (
     fillStyle: " #cccccc",
     strokeStyle: " #cccccc",
     position: { x: 575, y: 2 },
+  });
+  let messageText = pieces.text({
+    text: 'message',
+    font: `${20}px Arial`,
+    fillStyle: " #cccccc",
+    strokeStyle: " #cccccc",
+    position: { x: 175, y: 620 },
   });
 
   let startButton = pieces.button({
@@ -240,6 +242,13 @@ MyGame.screens["gameplay"] = (function (
     newCreep.setBestPath(cell.loc, dest);
   }
 
+  const updateCreepPaths = () => {
+    for(let c of creeps) {
+      c.setCells(graphics.cells);
+      c.setBestPath(utils.findClosestCell(c.center, graphics.cells)?.loc, c.goal.loc)
+    }
+  }
+
   const handleUpgrade = utils.throttle(() => {
     if(selectedGamePiece) {
       if(gold - (selectedGamePiece.getPrice(selectedGamePiece.level + 1) - selectedGamePiece.getPrice()) >= 0){
@@ -256,10 +265,11 @@ MyGame.screens["gameplay"] = (function (
   }, 1000)
 
   const handleSell = utils.throttle(() => {
-    if(!inPlay && selectedGamePiece !== null) {
+    if(selectedGamePiece !== null && !inPlay) {
       gold += selectedGamePiece.getPrice();
       goldText.updateText(`Gold ${gold}`);
       utils.remove(turrets, selectedGamePiece)
+      updateCreepPaths();
       selectedGamePiece = null;
     }
   }, 1000)
@@ -277,20 +287,20 @@ MyGame.screens["gameplay"] = (function (
         handleStart();
       }
       if (utils.isInside(loc, sellButton)) {
-        if (!inPlay && selectedGamePiece) {
+        if (selectedGamePiece) {
           handleSell()
         }
       }
       if (utils.isInside(loc, showGridButton)) {
         showGrid = !showGrid;
       }
-      if (utils.isInside(loc, airTurretIcon)) {
+      if (utils.isInside(loc, airTurretIcon) && !inPlay) {
         selectedNewPiece = pieces.turret(utils.copyTurret(airTurretIcon));
         selectedGamePiece = null;
-      } else if (utils.isInside(loc, groundTurretIcon)) {
+      } else if (utils.isInside(loc, groundTurretIcon) && !inPlay) {
         selectedNewPiece = pieces.turret(utils.copyTurret(groundTurretIcon));
         selectedGamePiece = null;
-      } else if (utils.isInside(loc, bombIcon)) {
+      } else if (utils.isInside(loc, bombIcon) && !inPlay) {
         selectedNewPiece = pieces.turret(utils.copyTurret(bombIcon));
         selectedGamePiece = null;
       }
@@ -301,11 +311,13 @@ MyGame.screens["gameplay"] = (function (
           graphics.cells
         );
         let newPiece = { ...selectedNewPiece, center: closest.center };
-        if(gold - newPiece.getPrice() >= 0) {
-          turrets.push(newPiece);
-          graphics.occupyCell(closest.loc.x, closest.loc.y, newPiece);
-          gold -= newPiece.getPrice();
-          goldText.updateText(`Gold ${gold}`);
+        if(gold - newPiece.getPrice() >= 0 && !inPlay) {
+          if(!utils.isBlocking(closest)) {
+            turrets.push(newPiece);
+            graphics.occupyCell(closest.loc.x, closest.loc.y, newPiece);
+            gold -= newPiece.getPrice();
+            goldText.updateText(`Gold ${gold}`);
+          }
         } else {
           selectedNewPiece = null;
         }
@@ -389,27 +401,26 @@ MyGame.screens["gameplay"] = (function (
   mouse.register("mousemove", handleMouseMove);
 
   const handleStart = utils.throttle(() => {
-    console.log('startttt')
-    inPlay = true;
-
-    let stats = utils.generateLevelStats(level, wave);
-
-    for(let pos of stats.indicators) {
-      indicators.push(pieces.text({
-        text: '*',
-        font: `${30}px Courier, monospace`,
-        fillStyle: " #cccccc",
-        strokeStyle: " #cccccc",
-        position: {...pos},
-      }));
+    if(!inPlay) {
+      console.log('startttt')
+      inPlay = true;
+  
+      let stats = utils.generateLevelStats(level, wave);
+  
+      for(let pos of stats.indicators) {
+        indicators.push(pieces.text({
+          text: '*',
+          font: `${30}px Courier, monospace`,
+          fillStyle: " #cccccc",
+          strokeStyle: " #cccccc",
+          position: {...pos},
+        }));
+      }
+      creepsToAdd = stats.creepStats;
+      console.log(creeps);
+  
+      showWave = true;
     }
-    creepsToAdd = stats.creepStats;
-    console.log(creeps);
-
-    showWave = true;
-
-    // TODO::
-    // make the wave end when all of them are dead/safe
 
   }, 1000)
 
@@ -455,22 +466,26 @@ MyGame.screens["gameplay"] = (function (
     }
 
     if(creepsToAdd.length === 0 && creeps.length === 0 && inPlay) {
-      // console.log('WAVE OVER')
-
-      // TODO: show the message of the second wave
-      
+      console.log('WAVE OVER')
       inPlay = false;
+      indicators = [];
       if(wave == 2) {
         wave = 1;
-        if(level < 4) {
-          level += 1;
-
-          // TODO:  show the message saying prepare for level
-
+        level += 1;
+      }
+      wave += 1;
+      if(level < 4) {
+        waveText.updateText(`Wave ${wave}`)
+        levelText.updateText(`Level ${wave}`)
+        showMessage = true;
+        messageText.updateText('Prepare for next wave');
+        setTimeout(() => {
+          handleStart();
+          messageText.updateText('Wave starting')
           setTimeout(() => {
-            handleStart();
-          }, 15 * 1000)
-        }
+            showMessage = false;
+          }, 1000)
+        }, 8 * 1000)
       }
     }
 
@@ -492,11 +507,12 @@ MyGame.screens["gameplay"] = (function (
     for(let c of creeps) {
       if(c.health === 0) {
         utils.remove(creeps, c);
+        gold += 1;
+        goldText.updateText(`Gold ${gold}`)
       } else {
         c.renderer.update(elapsedTime);
         c.move(elapsedTime);
         if(c.center.x === c.goal.center.x && c.center.y === c.goal.center.y) {
-          // HANDLE A VICTORIOUS CREEP
           utils.remove(creeps, c);
         }
       }
@@ -560,10 +576,12 @@ MyGame.screens["gameplay"] = (function (
       renderer.Model.render(description);
     }
 
-    renderer.Text.render(timeText);
     renderer.Text.render(levelText);
     if(showWave) {
       renderer.Text.render(waveText);
+    }
+    if(showMessage) {
+      renderer.Text.render(messageText);
     }
     renderer.Text.render(goldText);
 

@@ -298,6 +298,32 @@ MyGame.utils = (function () {
     return radiusMap[type][level];
   };
 
+  // const isBlockingEntrances = (turret, cells) => {
+    
+  // }
+
+
+  // TODO: could be better
+  const isBlocking = (turret, cells) => {
+    if(turret.loc.x === 0 && (turret.loc.y >= 4 && turret.loc.y <=7 )){
+      return true;
+    }
+    if(turret.loc.y === 0 && (turret.loc.x >=4 && turret.loc.y <=7)) {
+      return true;
+    }
+
+    if(turret.loc.y === 11 && (turret.loc.x >=4 && turret.loc.y <= 7)) {
+      return true;
+    }
+
+    if(turret.loc.x === 11 && (turret.loc.y >=4 && turret.loc.y <= 7)) {
+      return true;
+    }
+
+    return false;
+    // return isBlockingEntrances(turret, cells);
+  }
+
   let api = {
     remove,
     isInside,
@@ -312,6 +338,7 @@ MyGame.utils = (function () {
     generateLevelStats,
     typeMatches,
     updateRadius,
+    isBlocking,
     levels,
   };
 

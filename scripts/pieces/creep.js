@@ -193,15 +193,31 @@ MyGame.pieces.creep = function (spec) {
   };
 
   const setBestPath = (start, end) => {
+    let oldPath = path;
+    let newPath = [];
     let endNode = gatherPaths(start, end);
     let parent = endNode;
-    path = [];
+    newPath = [];
     while (parent) {
-      path.push(parent);
+      newPath.push(parent);
       parent = parent.parent;
     }
+    if(oldPath.length === newPath.length) {
+      isDifferent = false;
+      for(let i=0; i<path.length; i++) {
+        if(newPath[i] !== oldPath[i]) {
+          isDifferent = true;
+        } else {
+          isDifferent = true;
+        }
+      }
+      if(!isDifferent) {
+        return oldPath
+      }
+    }
+    path = newPath
     goal = path.length > 1 ? path[0] : null;
-    return path;
+    return newPath;
   };
 
   return {
