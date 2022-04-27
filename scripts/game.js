@@ -20,10 +20,26 @@ MyGame.screens["gameplay"] = (function (
   let showGrid;
   let showDescription;
   let time = 0;
-
+  let score = 0;
   let level = 1;
   let wave = 1;
   let gold = 10;
+
+
+  let shotAudio = new Audio();
+  shotAudio.src = 'assets/sounds/shot.mp3';
+
+  let deathAudio = new Audio();
+  deathAudio.src = 'assets/sounds/death.mp3';
+
+  let punchAudio = new Audio();
+  punchAudio.src = 'assets/sounds/punch.mp3';
+
+  let hitAudio = new Audio();
+  hitAudio.src = 'assets/sounds/hit.mp3';
+
+  let breakAudio = new Audio();
+  breakAudio.src = 'assets/sounds/break.mp3';
   
   let showWave = false;
 
@@ -57,7 +73,6 @@ MyGame.screens["gameplay"] = (function (
       turrets = [];
       creeps = [];
       lazers = [];
-      indicators = [];
       level = 1;
       wave = 1;
       showWave = false;
@@ -65,8 +80,20 @@ MyGame.screens["gameplay"] = (function (
       creepsToAdd = [];
       explosions = [];
     }
+
+    messageText.updateText('Welcome, place your pieces')
+    showMessage = true;
+
+    getIndicators(level, wave);
   };
 
+  let scoreText = pieces.text({
+    text: `Score ${time}`,
+    font: `${20}px Arial`,
+    fillStyle: " #cccccc",
+    strokeStyle: " #cccccc",
+    position: { x: 25, y: 2 },
+  });
   let levelText = pieces.text({
     text: `Level ${level}`,
     font: `${20}px Courier, monospace`,
@@ -211,6 +238,7 @@ MyGame.screens["gameplay"] = (function (
       angle: utils.getAngle(from, goal),
       imageSrc: `assets/guns/bullet-${from.level}.png`,
     }))
+    shotAudio.play();
   }
 
   const addCreep = (cell, type, dest) => {
@@ -250,6 +278,7 @@ MyGame.screens["gameplay"] = (function (
   }
 
   const handleUpgrade = utils.throttle(() => {
+    punchAudio.play();
     if(selectedGamePiece) {
       if(gold - (selectedGamePiece.getPrice(selectedGamePiece.level + 1) - selectedGamePiece.getPrice()) >= 0){
         let oldPrice = selectedGamePiece.getPrice();
@@ -269,6 +298,7 @@ MyGame.screens["gameplay"] = (function (
       gold += selectedGamePiece.getPrice();
       goldText.updateText(`Gold ${gold}`);
       utils.remove(turrets, selectedGamePiece)
+      breakAudio.play();
       updateCreepPaths();
       selectedGamePiece = null;
     }
@@ -314,6 +344,7 @@ MyGame.screens["gameplay"] = (function (
         if(gold - newPiece.getPrice() >= 0 && !inPlay) {
           if(!utils.isBlocking(closest)) {
             turrets.push(newPiece);
+            hitAudio.play();
             graphics.occupyCell(closest.loc.x, closest.loc.y, newPiece);
             gold -= newPiece.getPrice();
             goldText.updateText(`Gold ${gold}`);
@@ -396,26 +427,32 @@ MyGame.screens["gameplay"] = (function (
     })
   }
 
+  const getIndicators = (level, wave) => {
+    let stats = utils.generateLevelStats(level, wave);
+    indicators = [];
+    for(let pos of stats.indicators) {
+      indicators.push(pieces.text({
+        text: '*',
+        font: `${30}px Courier, monospace`,
+        fillStyle: " #cccccc",
+        strokeStyle: " #cccccc",
+        position: {...pos},
+      }));
+    }
+  }
+
   mouse.register("mousedown", handleMouse);
 
   mouse.register("mousemove", handleMouseMove);
 
   const handleStart = utils.throttle(() => {
     if(!inPlay) {
+      showMessage = false;
       console.log('startttt')
       inPlay = true;
   
       let stats = utils.generateLevelStats(level, wave);
-  
-      for(let pos of stats.indicators) {
-        indicators.push(pieces.text({
-          text: '*',
-          font: `${30}px Courier, monospace`,
-          fillStyle: " #cccccc",
-          strokeStyle: " #cccccc",
-          position: {...pos},
-        }));
-      }
+      getIndicators(level, wave)
       creepsToAdd = stats.creepStats;
       console.log(creeps);
   
@@ -457,8 +494,10 @@ MyGame.screens["gameplay"] = (function (
       e.passedTime += elapsedTime;
       if(e.passedTime > e.time && !e.exploded) {
         e.exploded = true;
+        deathAudio.play();
         for(let c of creeps) {
           if(utils.typeMatches({type: 'bomb'}, c) && utils.insideRadius({center: e.center}, e.radius, c)) {
+            punchAudio.play();
             c.handleHit(e.damage);
           }
         }
@@ -467,16 +506,19 @@ MyGame.screens["gameplay"] = (function (
 
     if(creepsToAdd.length === 0 && creeps.length === 0 && inPlay) {
       console.log('WAVE OVER')
+      if(wave == 2 && level !== 3) { 
+        level += 1
+        score += 100;
+        wave = 1;
+      } else {
+        wave += 1
+      }
       inPlay = false;
       indicators = [];
-      if(wave == 2) {
-        wave = 1;
-        level += 1;
-      }
-      wave += 1;
-      if(level < 4) {
+      if(!(level === 3 && wave === 3)) {
+        getIndicators(level, wave)
         waveText.updateText(`Wave ${wave}`)
-        levelText.updateText(`Level ${wave}`)
+        levelText.updateText(`Level ${level}`)
         showMessage = true;
         messageText.updateText('Prepare for next wave');
         setTimeout(() => {
@@ -486,6 +528,19 @@ MyGame.screens["gameplay"] = (function (
             showMessage = false;
           }, 1000)
         }, 8 * 1000)
+      } else {
+        showMessage = true;
+        messageText.updateText('Congragulations! navigate to main menu')
+        let scores = localStorage.getItem("scores") || "[]";
+        scores = JSON.parse(scores);
+        scores.push(score);
+        scores.sort(function (a, b) {
+          return a - b;
+        });
+        if (scores.length > 5) {
+          scores.shift();
+        }
+        localStorage.setItem("scores", JSON.stringify(scores));
       }
     }
 
@@ -508,12 +563,17 @@ MyGame.screens["gameplay"] = (function (
       if(c.health === 0) {
         utils.remove(creeps, c);
         gold += 1;
+        score += 25;
         goldText.updateText(`Gold ${gold}`)
+        scoreText.updateText(`Score ${score}`);
       } else {
         c.renderer.update(elapsedTime);
         c.move(elapsedTime);
         if(c.center.x === c.goal.center.x && c.center.y === c.goal.center.y) {
           utils.remove(creeps, c);
+          deathAudio.play();
+          score -= 50;
+          scoreText.updateText(`Score ${score}`);
         }
       }
     }
@@ -546,6 +606,7 @@ MyGame.screens["gameplay"] = (function (
     for(let l of lazers) {
       for(let c of creeps) {
         if(utils.isIntersecting(l, c)) {
+          punchAudio.play();
           c.handleHit(l.damage)
           utils.remove(lazers, l);
         }
@@ -576,6 +637,7 @@ MyGame.screens["gameplay"] = (function (
       renderer.Model.render(description);
     }
 
+    renderer.Text.render(scoreText);
     renderer.Text.render(levelText);
     if(showWave) {
       renderer.Text.render(waveText);

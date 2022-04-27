@@ -166,28 +166,35 @@ MyGame.utils = (function () {
     let stats = {
       creepStats: [],
     };
-    let creepNums = levels[level][wave];
+    let creepNums = level < 3 ? levels[level][wave] : levels[level];
     for (let type of types) {
       for (let i = 0; i < creepNums[type]; i++) {
+        let currentLevel = level === 3 ? Random.nextRange(1, 2) : level;
+        if(level === 3 && type === 'knight') {
+          currentLevel = 1
+        }
+        if(level === 2 && type === 'turtle') {
+          currentLevel = 2;
+        }
         stats.creepStats.push({
           start: {
             x: Random.nextRange(
-              startPoints[level].start.minX,
-              startPoints[level].start.maxX
+              startPoints[currentLevel].start.minX,
+              startPoints[currentLevel].start.maxX
             ),
             y: Random.nextRange(
-              startPoints[level].start.minY,
-              startPoints[level].start.maxY
+              startPoints[currentLevel].start.minY,
+              startPoints[currentLevel].start.maxY
             ),
           },
           goal: {
             x: Random.nextRange(
-              startPoints[level].goal.minX,
-              startPoints[level].goal.maxX
+              startPoints[currentLevel].goal.minX,
+              startPoints[currentLevel].goal.maxX
             ),
             y: Random.nextRange(
-              startPoints[level].goal.minY,
-              startPoints[level].goal.maxY
+              startPoints[currentLevel].goal.minY,
+              startPoints[currentLevel].goal.maxY
             ),
           },
           type: type,
@@ -198,7 +205,8 @@ MyGame.utils = (function () {
     stats.indicators =
       level < 3
         ? indicatorLocs[level]
-        : [indicatorLocs[1][0], indicatorLocs[0][0]];
+        : [indicatorLocs[1][0], indicatorLocs[2][0]];
+
     return stats;
   };
 
@@ -241,9 +249,8 @@ MyGame.utils = (function () {
 
   const levelsToHealth = {
     1: 20,
-    2: 30,
-    3: 40,
-    3: 45,
+    2: 50,
+    3: 75,
   };
 
   function throttle(fn, limit) {
