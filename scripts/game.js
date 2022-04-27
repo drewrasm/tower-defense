@@ -34,6 +34,7 @@ MyGame.screens["gameplay"] = (function (
   let creeps = [];
   let creepsToAdd = [];
   let lazers = [];
+  let explosions = [];
 
   let selectedNewPiece;
   let selectedGamePiece;
@@ -60,6 +61,7 @@ MyGame.screens["gameplay"] = (function (
       showWave = false;
       gold = 10;
       creepsToAdd = [];
+      explosions = [];
     }
   };
 
@@ -367,6 +369,20 @@ MyGame.screens["gameplay"] = (function (
     }
   };
 
+  const handleExplosion = (turret) => {
+    explosions.push({
+      center: {...turret.center},
+      radius: turret.radius,
+      time: 2000,
+      passedTime: 0,
+      animationTime: 1000,
+      animatedTime: 0,
+      exploded: false,
+      damage: turret.getBombDamage(),
+      type: 'bomb'
+    })
+  }
+
   mouse.register("mousedown", handleMouse);
 
   mouse.register("mousemove", handleMouseMove);
@@ -425,6 +441,38 @@ MyGame.screens["gameplay"] = (function (
     // update
     updateKeys();
 
+    for(let e of explosions) {
+      e.passedTime += elapsedTime;
+      if(e.passedTime > e.time && !e.exploded) {
+        e.exploded = true;
+        for(let c of creeps) {
+          if(utils.typeMatches({type: 'bomb'}, c) && utils.insideRadius({center: e.center}, e.radius, c)) {
+            c.handleHit(e.damage);
+          }
+        }
+      }
+    }
+
+    if(creepsToAdd.length === 0 && creeps.length === 0 && inPlay) {
+      // console.log('WAVE OVER')
+
+      // TODO: show the message of the second wave
+      
+      inPlay = false;
+      if(wave == 2) {
+        wave = 1;
+        if(level < 4) {
+          level += 1;
+
+          // TODO:  show the message saying prepare for level
+
+          setTimeout(() => {
+            handleStart();
+          }, 15 * 1000)
+        }
+      }
+    }
+
     lastAdded += elapsedTime;
     if(lastAdded >= lastAddedWait && creepsToAdd.length > 0) {
       let creepToAdd = creepsToAdd.pop();
@@ -459,10 +507,19 @@ MyGame.screens["gameplay"] = (function (
         for(let c of creeps) {
           if(utils.insideRadius(t, t.radius, c)) {
             if(t.requiredCoolDown < t.coolDownTime) {
-              t.rotation = utils.getAngle(t, c);
-              t.coolDownTime = 0;
-              addLazer(t, c)
-              break;
+              if(t.type === 'bomb') {
+                utils.remove(turrets, t);
+                if(utils.typeMatches(t, c)) {
+                  handleExplosion(t);
+                }
+                break;
+              }
+              else if(utils.typeMatches(t, c)) {
+                t.rotation = utils.getAngle(t, c);
+                t.coolDownTime = 0;
+                addLazer(t, c)
+                break;
+              }
             }
           }
         }
@@ -479,7 +536,7 @@ MyGame.screens["gameplay"] = (function (
     }
   }
 
-  function render() {
+  function render(elapsedTime) {
     graphics.clear();
 
     if (selectedNewPiece?.showRadius) {
@@ -538,6 +595,17 @@ MyGame.screens["gameplay"] = (function (
       graphics.drawRectangle(creep.healthRects.green, "green", "green");
       creep.renderer.render(creep);
     }
+
+    for(let e of explosions) {
+      if(e.exploded) {
+        e.animatedTime += elapsedTime;
+        if(e.animationTime < e.animatedTime) {
+          utils.remove(explosions, e);
+        } else {
+          graphics.drawCircle({center: e.center, radius: e.radius}, 'red')
+        }
+      }
+    }
   }
 
   function gameLoop(time) {
@@ -547,7 +615,7 @@ MyGame.screens["gameplay"] = (function (
     update(elapsedTime);
     lastTimeStamp = time;
 
-    render();
+    render(elapsedTime);
 
     requestAnimationFrame(gameLoop);
   }

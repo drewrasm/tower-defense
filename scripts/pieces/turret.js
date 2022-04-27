@@ -35,6 +35,12 @@ MyGame.pieces.turret = function(spec) {
         showRadius = show;
     }
 
+    const damageMapBomb = {
+        1: 10,
+        2: 15,
+        3: 20,
+    }
+
     const priceMap = {
         ground: {
             1: 5,
@@ -55,6 +61,12 @@ MyGame.pieces.turret = function(spec) {
 
     const getPrice = (lvl=null) => {
         return priceMap[spec.type][lvl || spec.level]
+    }
+
+    const getBombDamage = () => {
+        if(spec.type === 'bomb') {
+            return damageMapBomb[spec.level];
+        }
     }
 
     return {
@@ -107,5 +119,6 @@ MyGame.pieces.turret = function(spec) {
         setShowRadius,
         changeImage,
         getPrice,
+        getBombDamage,
     };
 };

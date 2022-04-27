@@ -248,6 +248,19 @@ MyGame.utils = (function () {
     return levelsToHealth[level]
   }
 
+  const typeMatches = (turret, creep) => {
+    if(turret.type === 'air' && creep.type === 'bird') {
+      return true;
+    }
+    if(turret.type === 'ground' && creep.type !== 'bird') {
+      return true;
+    }
+    if(turret.type === 'bomb' && creep.type !== 'bird') {
+      return true;
+    }
+    return turret.type === 'both';
+  }
+
   let api = {
     remove,
     isInside,
@@ -260,6 +273,7 @@ MyGame.utils = (function () {
     getBaseHealth,
     throttle,
     generateLevelStats,
+    typeMatches,
     levels,
   };
 
