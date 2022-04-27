@@ -3,7 +3,9 @@ MyGame.pieces.turret = function(spec) {
 
     let imageReady = false;
     let image = new Image();
-  
+
+    let requiredCoolDown = 500;
+
     const initializeImage = (newImage = null) => {
       image.onload = function () {
         imageReady = true;
@@ -95,9 +97,15 @@ MyGame.pieces.turret = function(spec) {
         get type() {
             return spec.type;
         },
+        get requiredCoolDown() {
+            return requiredCoolDown;
+        },
+        get coolDownTime() {
+            return spec.coolDownTime || 0;
+        },
         setCenter,
         setShowRadius,
         changeImage,
-        getPrice
+        getPrice,
     };
 };

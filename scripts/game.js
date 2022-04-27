@@ -78,7 +78,7 @@ MyGame.screens["gameplay"] = (function (
     position: { x: 175, y: 2 },
   });
   let waveText = pieces.text({
-    text: `Waves ${wave}`,
+    text: `Wave ${wave}`,
     font: `${20}px Courier, monospace`,
     fillStyle: " #cccccc",
     strokeStyle: " #cccccc",
@@ -449,6 +449,22 @@ MyGame.screens["gameplay"] = (function (
         if(c.center.x === c.goal.center.x && c.center.y === c.goal.center.y) {
           // HANDLE A VICTORIOUS CREEP
           utils.remove(creeps, c);
+        }
+      }
+    }
+
+    for(let t of turrets) {
+      if(inPlay) {
+        t.coolDownTime += elapsedTime;
+        for(let c of creeps) {
+          if(utils.insideRadius(t, t.radius, c)) {
+            if(t.requiredCoolDown < t.coolDownTime) {
+              t.rotation = utils.getAngle(t, c);
+              t.coolDownTime = 0;
+              addLazer(t, c)
+              break;
+            }
+          }
         }
       }
     }

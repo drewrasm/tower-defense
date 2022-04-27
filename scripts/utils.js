@@ -30,6 +30,29 @@ MyGame.utils = (function () {
     );
   };
 
+  const insideRadius = (loc, radius, obj) => {
+    let circleDistX = Math.abs(loc.center.x - obj.center.x);
+    let circleDistY = Math.abs(loc.center.y - obj.center.y);
+
+    if(circleDistX > ((obj.size.x/2) + radius)){
+      return false
+    }
+    if(circleDistY > ((obj.size.y / 2) + radius)) {
+      return false
+    }
+
+    if(circleDistX <= (obj.size.x / 2)) {
+      return true
+    }
+    if(circleDistY <= (obj.size.y / 2)) {
+      return true
+    }
+
+    let corenerDist = Math.pow((circleDistX - (obj.size.x / 2)), 2) + Math.pow((circleDistY - (obj.size.y / 2)), 2)
+
+    return corenerDist <= (Math.pow(radius, 2));
+  }
+
   const getAngle = (a, b) => {
     let dy = a.center.y - b.center.y;
     let dx = a.center.x - b.center.x;
@@ -57,6 +80,7 @@ MyGame.utils = (function () {
       radius: turret.radius,
       type: turret.type,
       level: turret.level,
+      coolDownTime: 0
     };
   };
 
@@ -227,6 +251,7 @@ MyGame.utils = (function () {
   let api = {
     remove,
     isInside,
+    insideRadius,
     isIntersecting,
     copyTurret,
     findClosestCell,
