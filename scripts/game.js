@@ -1,8 +1,3 @@
-//------------------------------------------------------------------
-//
-// This provides the "game" code.
-//
-//------------------------------------------------------------------
 MyGame.screens["gameplay"] = (function (
   systems,
   renderer,
@@ -27,13 +22,17 @@ MyGame.screens["gameplay"] = (function (
   let time = 0;
 
   let level = 1;
-  let lives = 2;
+  let wave = 1;
   let gold = 10;
+  
+  let showWave = false;
 
   let inPlay = false;
 
+  let indicators = [];
   let turrets = [];
   let creeps = [];
+  let creepsToAdd = [];
   let lazers = [];
 
   let selectedNewPiece;
@@ -55,9 +54,12 @@ MyGame.screens["gameplay"] = (function (
       turrets = [];
       creeps = [];
       lazers = [];
+      indicators = [];
       level = 1;
-      lives = 2;
+      wave = 1;
+      showWave = false;
       gold = 10;
+      creepsToAdd = [];
     }
   };
 
@@ -75,8 +77,8 @@ MyGame.screens["gameplay"] = (function (
     strokeStyle: " #cccccc",
     position: { x: 175, y: 2 },
   });
-  let livesText = pieces.text({
-    text: `Lives ${lives}`,
+  let waveText = pieces.text({
+    text: `Waves ${wave}`,
     font: `${20}px Courier, monospace`,
     fillStyle: " #cccccc",
     strokeStyle: " #cccccc",
@@ -193,10 +195,6 @@ MyGame.screens["gameplay"] = (function (
 
   // END OF STATE VARIABLES
 
-  const handleStart = utils.throttle(() => {
-    console.log('START!')
-  }, 1000)
-
   const addLazer = (from, goal) => {
     lazers.push(pieces.lazer({
       center: {...from.center},
@@ -238,11 +236,9 @@ MyGame.screens["gameplay"] = (function (
     newCreep.setCells(graphics.cells)
     creeps.push(newCreep);
     newCreep.setBestPath(cell.loc, dest);
-    console.log(newCreep)
   }
 
   const handleUpgrade = utils.throttle(() => {
-    console.log('upgrade', selectedGamePiece)
     if(selectedGamePiece) {
       if(gold - (selectedGamePiece.getPrice(selectedGamePiece.level + 1) - selectedGamePiece.getPrice()) >= 0){
         let oldPrice = selectedGamePiece.getPrice();
@@ -275,8 +271,7 @@ MyGame.screens["gameplay"] = (function (
     }
     if (!selectedNewPiece) {
       if (utils.isInside(loc, startButton)) {
-        console.log("start");
-        inPlay = true;
+        handleStart();
       }
       if (utils.isInside(loc, sellButton)) {
         if (!inPlay && selectedGamePiece) {
@@ -308,7 +303,6 @@ MyGame.screens["gameplay"] = (function (
           graphics.occupyCell(closest.loc.x, closest.loc.y, newPiece);
           gold -= newPiece.getPrice();
           goldText.updateText(`Gold ${gold}`);
-          console.log(turrets);
         } else {
           selectedNewPiece = null;
         }
@@ -377,6 +371,32 @@ MyGame.screens["gameplay"] = (function (
 
   mouse.register("mousemove", handleMouseMove);
 
+  const handleStart = utils.throttle(() => {
+    console.log('startttt')
+    inPlay = true;
+
+    let stats = utils.generateLevelStats(level, wave);
+
+    for(let pos of stats.indicators) {
+      indicators.push(pieces.text({
+        text: '*',
+        font: `${30}px Courier, monospace`,
+        fillStyle: " #cccccc",
+        strokeStyle: " #cccccc",
+        position: {...pos},
+      }));
+    }
+    creepsToAdd = stats.creepStats;
+    console.log(creeps);
+
+    showWave = true;
+
+    // TODO::
+    // make the wave end when all of them are dead/safe
+
+  }, 1000)
+
+
   function processInput(elapsedTime) {
     keyboard.update(elapsedTime);
     mouse.update(elapsedTime);
@@ -384,6 +404,8 @@ MyGame.screens["gameplay"] = (function (
 
   // let testTime = 0;
 
+  let lastAdded = 0;
+  let lastAddedWait = 0;
   function update(elapsedTime) {
     // testTime += elapsedTime
 
@@ -402,6 +424,18 @@ MyGame.screens["gameplay"] = (function (
 
     // update
     updateKeys();
+
+    lastAdded += elapsedTime;
+    if(lastAdded >= lastAddedWait && creepsToAdd.length > 0) {
+      let creepToAdd = creepsToAdd.pop();
+      addCreep(
+        graphics.cells[creepToAdd.start.x][creepToAdd.start.y],
+        creepToAdd.type,
+        creepToAdd.goal
+        )
+        lastAdded = 0;
+        lastAddedWait = Random.nextRange(1500, 3000);
+    }
 
     for(let l of lazers) {
       l.updateMovement(elapsedTime)
@@ -454,13 +488,19 @@ MyGame.screens["gameplay"] = (function (
 
     renderer.Text.render(timeText);
     renderer.Text.render(levelText);
+    if(showWave) {
+      renderer.Text.render(waveText);
+    }
     renderer.Text.render(goldText);
-    renderer.Text.render(livesText);
 
     renderer.Model.render(startButton);
     renderer.Model.render(sellButton);
     renderer.Model.render(upgradeButton);
     renderer.Model.render(showGridButton);
+
+    for(let i of indicators) {
+      renderer.Text.render(i);
+    }
 
     if (selectedNewPiece) {
       renderer.Model.render(selectedNewPiece);

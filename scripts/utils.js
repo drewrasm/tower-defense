@@ -65,32 +65,105 @@ MyGame.utils = (function () {
       1: {
         knight: 5,
         turtle: 5,
-        birds: 0,
+        bird: 0,
       },
       2: {
         knight: 7,
         turtle: 7,
-        birds: 0,
+        bird: 0,
       },
     },
     2: {
       1: {
         knight: 8,
         turtle: 8,
-        birds: 0,
+        bird: 0,
       },
       2: {
         knight: 10,
         turtle: 10,
-        birds: 1,
+        bird: 1,
       },
     },
     3: {
       knight: 10,
       turtle: 10,
-      birds: 5,
+      bird: 5,
     },
   };
+  
+
+  const indicatorLocs = {
+    1: [
+      { x: 15, y: 315 }
+    ],
+    2: [{ x: 325, y: 15 }],
+  }
+
+  const startPoints = {
+    1: {
+      start: {
+        minX: 0,
+        maxX: 0,
+        minY: 4,
+        maxY: 7
+      },
+      goal: {
+        minX: 11,
+        maxX: 11,
+        minY: 4,
+        maxY: 7,
+      }
+    },
+    2: {
+      start: {
+        minX: 4,
+        maxX: 7,
+        minY: 0,
+        maxY:0,
+      },
+      goal: {
+        minX: 4,
+        maxX: 7,
+        minY: 11,
+        maxY: 11,
+      }
+    }
+  }
+
+  const shuffleList = (list) => {
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+    return list;
+  }
+
+  const generateLevelStats = (level, wave) => {
+    let types = ['bird', 'knight', 'turtle']
+    let stats = {
+      creepStats: []
+    }
+    let creepNums = levels[level][wave];
+    for(let type of types) {
+      for(let i = 0; i< creepNums[type]; i++) {
+        stats.creepStats.push({
+            start: {
+              x: Random.nextRange(startPoints[level].start.minX, startPoints[level].start.maxX),
+              y: Random.nextRange(startPoints[level].start.minY, startPoints[level].start.maxY)
+            },
+            goal: {
+              x: Random.nextRange(startPoints[level].goal.minX, startPoints[level].goal.maxX),
+              y: Random.nextRange(startPoints[level].goal.minY, startPoints[level].goal.maxY)
+            },
+            type: type
+        })
+      }
+    }
+    stats.creepStats = shuffleList(stats.creepStats);
+    stats.indicators = level < 3 ? indicatorLocs[level] : [indicatorLocs[1][0], indicatorLocs[0][0]];
+    return stats;
+  }
 
   const getDistance = (a, b) => {
     return (Math.abs(a.center.x - b.center.x) + Math.abs(a.center.y - b.center.y));
@@ -161,6 +234,7 @@ MyGame.utils = (function () {
     getClosest,
     getBaseHealth,
     throttle,
+    generateLevelStats,
     levels,
   };
 
